@@ -48,7 +48,7 @@ Source1:    https://github.com/protocolbuffers/utf8_range/archive/%{utf8_range_c
 # Add an option to not install the tests
 Patch:      0000-dont-install-tests.patch
 # Use the system flatbuffers
-Patch:      0001-system-flatbuffers.patch
+#Patch:      0001-system-flatbuffers.patch
 # Use the system protobuf
 Patch:      0002-system-protobuf.patch
 # Use the system onnx
