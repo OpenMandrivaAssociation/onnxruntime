@@ -216,6 +216,7 @@ for backend in %backends; do
 done
 
 %build
+export CXXFLAGS="%{optflags} -std=c++20"
 # Broken test in aarch64
 %ifarch aarch64
 rm -v onnxruntime/test/optimizer/nhwc_transformer_test.cc
