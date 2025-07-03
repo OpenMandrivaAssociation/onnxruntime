@@ -216,7 +216,6 @@ for backend in %backends; do
 done
 
 %build
-export CXXFLAGS="%{optflags} -std=c++20"
 # Broken test in aarch64
 %ifarch aarch64
 rm -v onnxruntime/test/optimizer/nhwc_transformer_test.cc
@@ -246,6 +245,7 @@ cd cmake
  -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \\\
  -Deigen_SOURCE_PATH=/usr/include/eigen3 \\\
  -Donnxruntime_USE_CUDA=OFF \\\
+ -DCMAKE_CXX_STANDARD=20 \\\
  -S .. \\\
 
 %if %{with rocm}
