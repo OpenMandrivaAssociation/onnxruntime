@@ -221,8 +221,8 @@ rm -v onnxruntime/test/optimizer/nhwc_transformer_test.cc
 %endif
 
 # Re-compile flatbuffers schemas with the system flatc
-%{python3} onnxruntime/core/flatbuffers/schema/compile_schema.py --flatc /usr/bin/flatc
-%{python3} onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
+python onnxruntime/core/flatbuffers/schema/compile_schema.py --flatc /usr/bin/flatc
+python onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
 
 # -Werror is too strict and brittle for distribution packaging.
 CXXFLAGS+="-Wno-error"
