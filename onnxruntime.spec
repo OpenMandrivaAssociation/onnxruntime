@@ -115,6 +115,7 @@ BuildRequires:  cmake(microsoft.gsl)
 BuildRequires:  pkgconfig(nlohmann_json)
 BuildRequires:  pkgconfig(protobuf)
 BuildRequires:  pkgconfig(python3)
+BuildRequires:  python3
 BuildRequires:  python-numpy
 BuildRequires:  python-setuptools
 BuildRequires:  python-wheel
