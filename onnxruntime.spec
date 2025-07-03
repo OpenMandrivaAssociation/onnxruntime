@@ -101,7 +101,7 @@ BuildRequires:  pkgconfig(absl_any)
 BuildRequires:  boost-devel >= 1.66
 BuildRequires:  bzip2
 
-#BuildRequires:  pkgconfig(libcpuinfo)
+BuildRequires:  pkgconfig(libcpuinfo)
 
 # Need update
 BuildRequires:  pkgconfig(date)
