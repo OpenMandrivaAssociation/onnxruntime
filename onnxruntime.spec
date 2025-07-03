@@ -227,6 +227,7 @@ python onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
 # -Werror is too strict and brittle for distribution packaging.
 CXXFLAGS+="-Wno-error"
 
+cd cmake
 # Overrides BUILD_SHARED_LIBS flag since onnxruntime compiles individual components as static, and links
 # all together into a single shared library when onnxruntime_BUILD_SHARED_LIB is ON.
 # The array-bounds and dangling-reference checks have false positives.
