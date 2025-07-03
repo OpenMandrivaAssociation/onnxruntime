@@ -225,6 +225,7 @@ rm -v onnxruntime/test/optimizer/nhwc_transformer_test.cc
 python onnxruntime/core/flatbuffers/schema/compile_schema.py --flatc /usr/bin/flatc
 python onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
 
+export CXXFLAGS="%{optflags} -std=c++20"
 # -Werror is too strict and brittle for distribution packaging.
 CXXFLAGS+="-Wno-error"
 
@@ -245,6 +246,9 @@ cd cmake
  -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \\\
  -Deigen_SOURCE_PATH=/usr/include/eigen3 \\\
  -Donnxruntime_USE_CUDA=OFF \\\
+ -DCMAKE_CXX_STANDARD_REQUIRED=ON \\\
+ -DCMAKE_CXX_EXTENSIONS=OFF \\\
+ -DCMAKE_CXX_STANDARD=20 \\\
  -S .. \\\
 
 %if %{with rocm}
