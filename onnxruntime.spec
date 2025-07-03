@@ -76,7 +76,7 @@ Patch:      0013-onnx-onnxruntime-fix.patch
 # Use the system python version
 Patch:      0014-system-python.patch
 # Fix errors when DISABLE_ABSEIL=ON
-Patch:      0015-abseil-disabled-fix.patch
+#Patch:      0015-abseil-disabled-fix.patch
 # Fix missing includes
 Patch:      0016-missing-cpp-headers.patch
 # Revert https://github.com/microsoft/onnxruntime/pull/21492 until
