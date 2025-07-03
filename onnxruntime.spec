@@ -243,7 +243,7 @@ cd cmake
  -Donnxruntime_USE_NEURAL_SPEED=OFF \\\
  -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \\\
  -Deigen_SOURCE_PATH=/usr/include/eigen3 \\\
- -S cmake \\\
+ -S .. \\\
 
 %if %{with rocm}
 backend=rocm
