@@ -99,6 +99,7 @@ BuildRequires:  make
 BuildRequires:	cmake(onnx)
 BuildRequires:  pkgconfig(absl_any)
 BuildRequires:  boost-devel >= 1.66
+BuildRequires:  boost-mp11-devel
 BuildRequires:  bzip2
 
 BuildRequires:  pkgconfig(libcpuinfo)
@@ -243,6 +244,7 @@ cd cmake
  -Donnxruntime_USE_NEURAL_SPEED=OFF \\\
  -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \\\
  -Deigen_SOURCE_PATH=/usr/include/eigen3 \\\
+ -Donnxruntime_USE_CUDA=OFF \\\
  -S .. \\\
 
 %if %{with rocm}
