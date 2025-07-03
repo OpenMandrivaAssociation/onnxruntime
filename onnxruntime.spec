@@ -245,7 +245,6 @@ cd cmake
  -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \\\
  -Deigen_SOURCE_PATH=/usr/include/eigen3 \\\
  -Donnxruntime_USE_CUDA=OFF \\\
- -DCMAKE_CXX_STANDARD=20 \\\
  -S .. \\\
 
 %if %{with rocm}
