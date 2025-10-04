@@ -1,0 +1,222 @@
+diff -up onnxruntime-1.20.1/cmake/external/abseil-cpp.cmake.omv~ onnxruntime-1.20.1/cmake/external/abseil-cpp.cmake
+--- onnxruntime-1.20.1/cmake/external/abseil-cpp.cmake.omv~	2025-10-04 00:53:16.751607474 +0200
++++ onnxruntime-1.20.1/cmake/external/abseil-cpp.cmake	2025-10-04 00:53:19.571425976 +0200
+@@ -107,7 +107,6 @@ absl::absl_check
+ absl::hash_function_defaults
+ absl::function_ref
+ absl::city
+-absl::low_level_hash
+ absl::fixed_array
+ absl::variant
+ absl::meta
+diff -up onnxruntime-1.20.1/cmake/external/onnxruntime_external_deps.cmake.omv~ onnxruntime-1.20.1/cmake/external/onnxruntime_external_deps.cmake
+--- onnxruntime-1.20.1/cmake/external/onnxruntime_external_deps.cmake.omv~	2025-10-04 00:52:01.064446516 +0200
++++ onnxruntime-1.20.1/cmake/external/onnxruntime_external_deps.cmake	2025-10-04 00:52:25.408106638 +0200
+@@ -428,7 +428,7 @@ namespace std { using ::getenv; }
+     endif()
+   endif()
+ else()
+-  add_library(flatbuffers::flatbuffers ALIAS flatbuffers::flatbuffers_shared)
++#  add_library(flatbuffers::flatbuffers ALIAS flatbuffers::flatbuffers_shared)
+ endif()
+ 
+ # ONNX
+diff -up onnxruntime-1.20.1/cmake/CMakeLists.txt.omv~ onnxruntime-1.20.1/cmake/CMakeLists.txt
+--- onnxruntime-1.20.1/cmake/CMakeLists.txt.omv~	2025-10-04 01:57:05.989474486 +0200
++++ onnxruntime-1.20.1/cmake/CMakeLists.txt	2025-10-04 01:57:17.375444352 +0200
+@@ -41,12 +41,7 @@ include(FetchContent)
+ include(CheckFunctionExists)
+ include(GNUInstallDirs) # onnxruntime_providers_* require CMAKE_INSTALL_* variables
+ 
+-# TODO: update this once all system adapt c++20
+-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+ set(CMAKE_CXX_STANDARD 20)
+-else()
+-set(CMAKE_CXX_STANDARD 17)
+-endif()
+ 
+ if (MSVC)
+   #  Make sure Visual Studio sets __cplusplus macro correctly: https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
+diff -up onnxruntime-1.20.1/include/onnxruntime/core/framework/float16.h.omv~ onnxruntime-1.20.1/include/onnxruntime/core/framework/float16.h
+--- onnxruntime-1.20.1/include/onnxruntime/core/framework/float16.h.omv~	2025-10-04 01:57:30.189594674 +0200
++++ onnxruntime-1.20.1/include/onnxruntime/core/framework/float16.h	2025-10-04 01:57:44.161286192 +0200
+@@ -261,19 +261,19 @@ struct BFloat16 : onnxruntime_float16::B
+ // initializers with MLFloat16 and BFloat16 from unsigned short
+ // E.g 10_f16 or 10_b16
+ #if !defined(__CUDACC__) && !defined(__HIPCC__)
+-inline MLFloat16 operator"" _f16(unsigned long long int v) noexcept {
++inline MLFloat16 operator""_f16(unsigned long long int v) noexcept {
+   return MLFloat16::FromBits(narrow<uint16_t>(v));
+ }
+ 
+-inline MLFloat16 operator"" _fp16(long double v) noexcept {
++inline MLFloat16 operator""_fp16(long double v) noexcept {
+   return MLFloat16(static_cast<float>(v));
+ }
+ 
+-inline BFloat16 operator"" _b16(unsigned long long int v) noexcept {
++inline BFloat16 operator""_b16(unsigned long long int v) noexcept {
+   return BFloat16::FromBits((narrow<uint16_t>(v)));
+ }
+ 
+-inline BFloat16 operator"" _bfp16(long double v) noexcept {
++inline BFloat16 operator""_bfp16(long double v) noexcept {
+   return BFloat16(static_cast<float>(v));
+ }
+ #endif
+diff -up onnxruntime-1.20.1/include/onnxruntime/core/framework/float8.h.omv~ onnxruntime-1.20.1/include/onnxruntime/core/framework/float8.h
+--- onnxruntime-1.20.1/include/onnxruntime/core/framework/float8.h.omv~	2025-10-04 01:57:48.467021799 +0200
++++ onnxruntime-1.20.1/include/onnxruntime/core/framework/float8.h	2025-10-04 01:58:12.696833674 +0200
+@@ -165,11 +165,11 @@ inline ORT_HOST_DEVICE bool operator<(co
+ // initializers with MLFloat8E4M3FN and Float8E4M3FN from unsigned char
+ #if !defined(__CUDACC__) && !defined(__HIPCC__)
+ 
+-inline Float8E4M3FN operator"" _f8e4m3fn(unsigned long long int v) {
++inline Float8E4M3FN operator""_f8e4m3fn(unsigned long long int v) {
+   return Float8E4M3FN(narrow<uint8_t>(v), Float8E4M3FN::FromBits());
+ }
+ 
+-inline Float8E4M3FN operator"" _f8e4m3fnp8(long double v) {
++inline Float8E4M3FN operator""_f8e4m3fnp8(long double v) {
+   return Float8E4M3FN(static_cast<float>(v), true);
+ }
+ 
+@@ -323,11 +323,11 @@ inline ORT_HOST_DEVICE bool operator<(co
+ // initializers with MLFloat8E4M3FN and Float8E4M3FN from unsigned char
+ #if !defined(__CUDACC__) && !defined(__HIPCC__)
+ 
+-inline Float8E4M3FNUZ operator"" _f8e4m3p8fnuz(unsigned long long int v) {
++inline Float8E4M3FNUZ operator""_f8e4m3p8fnuz(unsigned long long int v) {
+   return Float8E4M3FNUZ(narrow<uint8_t>(v), Float8E4M3FNUZ::FromBits());
+ }
+ 
+-inline Float8E4M3FNUZ operator"" _f8e4m3fnuzp8(long double v) {
++inline Float8E4M3FNUZ operator""_f8e4m3fnuzp8(long double v) {
+   return Float8E4M3FNUZ(static_cast<float>(v), true);
+ }
+ 
+@@ -493,11 +493,11 @@ inline ORT_HOST_DEVICE bool operator<(co
+ // initializers with MLFloat8E5M2 and Float8E5M2 from unsigned char
+ #if !defined(__CUDACC__) && !defined(__HIPCC__)
+ 
+-inline Float8E5M2 operator"" _f8e5m2fn(unsigned long long int v) {
++inline Float8E5M2 operator""_f8e5m2fn(unsigned long long int v) {
+   return Float8E5M2(narrow<uint8_t>(v), Float8E5M2::FromBits());
+ }
+ 
+-inline Float8E5M2 operator"" _f8e5m2fnp8(long double v) {
++inline Float8E5M2 operator""_f8e5m2fnp8(long double v) {
+   return Float8E5M2(static_cast<float>(v), true);
+ }
+ 
+@@ -642,11 +642,11 @@ inline ORT_HOST_DEVICE bool operator<(co
+ // initializers with MLFloat8E5M2 and Float8E5M2 from unsigned char
+ #if !defined(__CUDACC__) && !defined(__HIPCC__)
+ 
+-inline Float8E5M2FNUZ operator"" _f8e5m2fnuz(unsigned long long int v) {
++inline Float8E5M2FNUZ operator""_f8e5m2fnuz(unsigned long long int v) {
+   return Float8E5M2FNUZ(narrow<uint8_t>(v), Float8E5M2FNUZ::FromBits());
+ }
+ 
+-inline Float8E5M2FNUZ operator"" _f8e5m2fnuzp8(long double v) {
++inline Float8E5M2FNUZ operator""_f8e5m2fnuzp8(long double v) {
+   return Float8E5M2FNUZ(static_cast<float>(v), true);
+ }
+ 
+diff -up onnxruntime-1.20.1/onnxruntime/core/framework/node_unit.cc.omv~ onnxruntime-1.20.1/onnxruntime/core/framework/node_unit.cc
+--- onnxruntime-1.20.1/onnxruntime/core/framework/node_unit.cc.omv~	2025-10-04 01:59:58.685174988 +0200
++++ onnxruntime-1.20.1/onnxruntime/core/framework/node_unit.cc	2025-10-04 02:00:06.700587790 +0200
+@@ -1,7 +1,9 @@
+ // Copyright (c) Microsoft Corporation. All rights reserved.
+ // Licensed under the MIT License.
+ 
++#ifndef __clang__
+ #pragma GCC diagnostic ignored "-Wstringop-overflow"
++#endif
+ 
+ #if !defined(ORT_MINIMAL_BUILD) || defined(ORT_EXTENDED_MINIMAL_BUILD)
+ 
+diff -up onnxruntime-1.20.1/onnxruntime/core/graph/graph.cc.omv~ onnxruntime-1.20.1/onnxruntime/core/graph/graph.cc
+--- onnxruntime-1.20.1/onnxruntime/core/graph/graph.cc.omv~	2025-10-04 02:10:04.181885019 +0200
++++ onnxruntime-1.20.1/onnxruntime/core/graph/graph.cc	2025-10-04 02:19:34.828948529 +0200
+@@ -1286,10 +1286,12 @@ Graph::Graph(const Model& owning_model,
+ 
+     // Remove sparse_initializers from protobuf to save memory as they are converted to dense now
+     graph_proto_->mutable_sparse_initializer()->Clear();
++#if GOOGLE_PROTOBUF_VERSION < 5026000
+     const int sparse_num_cleared = graph_proto_->sparse_initializer().ClearedCount();
+     for (int i = 0; i < sparse_num_cleared; ++i) {
+       delete graph_proto_->mutable_sparse_initializer()->ReleaseCleared();
+     }
++#endif
+   }
+ #endif
+ 
+@@ -3638,10 +3640,12 @@ void Graph::CleanAllInitializedTensors()
+   // and can be reused. Need to explicitly release the cleared objects and free the
+   // memory.
+   graph_proto_->mutable_initializer()->Clear();
++#if GOOGLE_PROTOBUF_VERSION < 5026000
+   const int num_cleared = graph_proto_->initializer().ClearedCount();
+   for (int i = 0; i < num_cleared; i++) {
+     delete graph_proto_->mutable_initializer()->ReleaseCleared();
+   }
++#endif
+ }
+ 
+ const ONNX_NAMESPACE::TensorProto* Graph::GetConstantInitializer(const std::string& initializer_name,
+diff -up onnxruntime-1.20.1/onnxruntime/core/mlas/lib/mlasi.h.omv~ onnxruntime-1.20.1/onnxruntime/core/mlas/lib/mlasi.h
+--- onnxruntime-1.20.1/onnxruntime/core/mlas/lib/mlasi.h.omv~	2025-10-04 02:00:25.657938010 +0200
++++ onnxruntime-1.20.1/onnxruntime/core/mlas/lib/mlasi.h	2025-10-04 02:01:05.472246860 +0200
+@@ -53,7 +53,7 @@ Abstract:
+ #if !defined(signature_VORTEX_ebx) && !defined(signature_NEXGEN_ebx) && !defined(signature_AMD_ebx)//workaround for Bug 96238 - [i386] cpuid.h header needs include guards
+ #include <cpuid.h>
+ #endif
+-#if defined(__GNUC__) && __GNUC__ >= 12
++#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 12
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"  // GCC 12 warns about uninitialized variables in immintrin.h.
+ #include <immintrin.h>
+diff -up onnxruntime-1.20.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.omv~ onnxruntime-1.20.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp
+--- onnxruntime-1.20.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.omv~	2025-10-04 05:44:55.595502800 +0200
++++ onnxruntime-1.20.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp	2025-10-04 05:45:04.353222792 +0200
+@@ -218,7 +218,7 @@ quantize(const Cli& cli)
+         } else {
+             buf = std::cout.rdbuf();
+         }
+-#if defined(__GNUC__) && __GNUC__ >= 12
++#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 12
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored \
+     "-Wdangling-pointer"  // TODO: suppress warning about dangling pointer until we have a fix
+diff -up onnxruntime-1.20.1/onnxruntime/core/optimizer/identical_children_consolidation.cc.omv~ onnxruntime-1.20.1/onnxruntime/core/optimizer/identical_children_consolidation.cc
+--- onnxruntime-1.20.1/onnxruntime/core/optimizer/identical_children_consolidation.cc.omv~	2025-10-04 05:35:48.692733815 +0200
++++ onnxruntime-1.20.1/onnxruntime/core/optimizer/identical_children_consolidation.cc	2025-10-04 05:38:05.103555194 +0200
+@@ -46,6 +46,7 @@ std::vector<std::vector<NodeIndex>> Iden
+     Node* node,
+     const string_view& op) {
+   unordered_map<string_view, std::vector<NodeIndex>> identical_children_map;
++#pragma GCC diagnostic ignored "-Wdangling-capture"
+   for (auto i = node->OutputEdgesBegin(); i != node->OutputEdgesEnd(); ++i) {
+     if (i->GetNode().OpType() == op) {
+       identical_children_map[IdentityBuilder(graph, i->GetNode())].push_back(i->GetNode().Index());
+@@ -125,4 +126,4 @@ std::string IdenticalChildrenConsolidati
+ 
+   return identity.str();
+ }
+-}  // namespace onnxruntime
+\ No newline at end of file
++}  // namespace onnxruntime
+diff -up onnxruntime-1.20.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc.omv~ onnxruntime-1.20.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc
+--- onnxruntime-1.20.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc.omv~	2025-10-04 05:44:20.585743516 +0200
++++ onnxruntime-1.20.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc	2025-10-04 05:44:28.744863059 +0200
+@@ -1,7 +1,9 @@
+ // Copyright (c) Microsoft Corporation. All rights reserved.
+ // Licensed under the MIT License.
+ 
++#ifndef __clang__
+ #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
++#endif
+ 
+ #include "core/optimizer/selectors_actions/selector_action_transformer.h"
+ 

@@ -1,49 +1,17 @@
-## START: Set by rpmautospec
-## (rpmautospec version 0.8.1)
-## RPMAUTOSPEC: autorelease, autochangelog
-%define autorelease(e:s:pb:n) %{?-p:0.}%{lua:
-    release_number = 19;
-    base_release_number = tonumber(rpm.expand("%{?-b*}%{!?-b:1}"));
-    print(release_number + base_release_number - 1);
-}%{?-e:.%{-e*}}%{?-s:.%{-s*}}%{!?-n:%{?dist}}
-## END: Set by rpmautospec
-
 %global utf8_range_commit 72c943dea2b9240cd09efde15191e144bc7c7d38
 %global utf8_range_name utf8_range-%( echo %utf8_range_commit | cut -c1-7 )
 
-%if 0%{?fedora}
-%ifarch x86_64
-%bcond rocm 1
-%else
-%bcond rocm 0
-%endif
-%else
-%bcond rocm 0
-%endif
-
-%bcond rocm_test 0
 %bcond test 1
 
-# $backend will be evaluated below
-%global _vpath_builddir %{_vendor}-%{_target_os}-build-${backend}
 %global backends cpu
-%if %{with rocm}
-%global backends %backends rocm
-%endif
 
 Summary:    A cross-platform inferencing and training accelerator
 Name:       onnxruntime
 Version:    1.20.1
 Release:    1
-# onnxruntime and SafeInt are MIT
-# onnx is Apache License 2.0
-# optional-lite is Boost Software License 1.0
-# some protobuf helper files files are BSD (protobuf_function.cmake, pb_helper.*)
-License:    MIT and ASL 2.0 and Boost and BSD
+License:    MIT and ASL-2.0 and Boost and BSD
 URL:        https://github.com/microsoft/onnxruntime
 Source0:    https://github.com/microsoft/onnxruntime/archive/v%{version}/%{name}-%{version}.tar.gz
-# Bundled utf8_range until they get propperly exposed from the protobuff package
-Source1:    https://github.com/protocolbuffers/utf8_range/archive/%{utf8_range_commit}/%{utf8_range_name}.zip
 
 # Add an option to not install the tests
 Patch:      0000-dont-install-tests.patch
@@ -89,10 +57,7 @@ Patch:      0020-disable-locale-tests.patch
 Patch:      0021-fix-range-loop-construct.patch
 Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
 
-# s390x:   https://bugzilla.redhat.com/show_bug.cgi?id=2235326
-# armv7hl: https://bugzilla.redhat.com/show_bug.cgi?id=2235328
-# i686:    https://fedoraproject.org/wiki/Changes/EncourageI686LeafRemoval
-ExcludeArch:    s390x %{arm} %{ix86}
+Patch:		onnxruntime-compile.patch
 
 BuildRequires:  cmake
 BuildRequires:  make
@@ -108,6 +73,7 @@ BuildRequires:  pkgconfig(date)
 # This one too
 BuildRequires:  flatbuffers
 BuildRequires:  pkgconfig(flatbuffers) >= 23.5.26
+BuildRequires:	%{_lib}flatbuffers-static-devel
 BuildRequires:  pkgconfig(gmock)
 BuildRequires:  pkgconfig(gsl)
 BuildRequires:  pkgconfig(gtest)
@@ -125,32 +91,7 @@ BuildRequires:  pkgconfig(re2)
 BuildRequires:  pkgconfig(zlib)
 Buildrequires:  pkgconfig(eigen3)
 BuildRequires:  pkgconfig(pybind11)
-
-%if %{with rocm}
-BuildRequires:  hipcc
-BuildRequires:  hipify
-BuildRequires:  hipblas-devel
-BuildRequires:  hipcub-devel
-BuildRequires:  hipfft-devel
-BuildRequires:  hiprand-devel
-BuildRequires:  hipsparse-devel
-BuildRequires:  miopen-devel
-BuildRequires:  rccl-devel
-BuildRequires:  rocblas-devel
-BuildRequires:  rocm-clang
-BuildRequires:  rocm-compilersupport-macros
-BuildRequires:  rocm-core-devel
-BuildRequires:  rocm-cmake
-BuildRequires:  rocm-device-libs
-BuildRequires:  rocm-hip-devel
-BuildRequires:  rocm-rpm-macros
-BuildRequires:  rocm-runtime-devel
-BuildRequires:  rocm-smi-devel
-BuildRequires:  rocthrust-devel
-BuildRequires:  roctracer-devel
-%endif
-
-Provides:       bundled(utf8_range)
+BuildRequires:	pkgconfig(libcpuinfo)
 
 %description
 %{name} is a cross-platform inferencing and training accelerator compatible
@@ -164,149 +105,66 @@ Requires:   %{name}%{_isa} = %{version}-%{release}
 %description devel
 The development part of the %{name} package
 
-%if %{with rocm}
-%package rocm
-Summary:    The ROCm runtime backend for the %{name} package
-
-%description rocm
-%{summary}
-
-%package rocm-devel
-Summary:    The ROCm development part of the %{name} package
-Requires:   %{name}-rocm%{_isa} = %{version}-%{release}
-
-%description rocm-devel
-%{summary}
-
-%package rocm-test
-Summary:    The ROCm tests for the %{name} package
-Requires:   %{name}-rocm%{_isa} = %{version}-%{release}
-
-%description rocm-test
-%{summary}
-%endif
-
-%package -n python3-onnxruntime
+%package -n python-onnxruntime
 Summary:    %{summary}
 Requires:   %{name}%{_isa} = %{version}-%{release}
 
-%description -n python3-onnxruntime
+%description -n python-onnxruntime
 Python bindings for the %{name} package
 
 %package doc
 Summary:    Documentation files for the %{name} package
+BuildArch:  noarch
 
 %description doc
 Documentation files for the %{name} package
 
-%if %{with rocm}
-%endif
-
 %prep
-
 %autosetup -p1
-# Downstream-only: do not pin the version of abseil-cpp; use what we have.
+# Use the system version of abseil-cpp
 sed -r -i 's/(FIND_PACKAGE_ARGS[[:blank:]]+)[0-9]{8}/\1/' \
     cmake/external/abseil-cpp.cmake
 
-for backend in %backends; do
-  mkdir -p ./%{_vpath_builddir}/_deps/utf8_range-subbuild/utf8_range-populate-prefix/src/
-  cp -r %{SOURCE1} ./%{_vpath_builddir}/_deps/utf8_range-subbuild/utf8_range-populate-prefix/src/%{utf8_range_commit}.zip
-done
+# Re-compile flatbuffers schemas with the system flatc
+python onnxruntime/core/flatbuffers/schema/compile_schema.py --flatc /usr/bin/flatc
+python onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
 
 %build
-# Broken test in aarch64
-%ifarch aarch64
-rm -v onnxruntime/test/optimizer/nhwc_transformer_test.cc
-%endif
+cd cmake
+%cmake -G Ninja \
+	-Donnxruntime_BUILD_BENCHMARKS=OFF \
+	-Donnxruntime_BUILD_SHARED_LIB=ON \
+	-Donnxruntime_BUILD_UNIT_TESTS=OFF \
+	-Donnxruntime_ENABLE_PYTHON=ON \
+	-DPYTHON_VERSION=%{pyver} \
+	-Donnxruntime_DISABLE_ABSEIL=ON \
+	-Donnxruntime_USE_FULL_PROTOBUF=ON \
+	-Donnxruntime_USE_NEURAL_SPEED=OFF \
+-Donnxruntime_USE_PREINSTALLED_EIGEN=ON \
+	-Deigen_SOURCE_PATH=/usr/include/eigen3 \
+	-Donnxruntime_ENABLE_CPUINFO=ON \
+	-Donnxruntime_INSTALL_UNIT_TESTS=OFF
 
-# Re-compile flatbuffers schemas with the system flatc
-%{python3} onnxruntime/core/flatbuffers/schema/compile_schema.py --flatc /usr/bin/flatc
-%{python3} onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
+%ninja_build
 
-# -Werror is too strict and brittle for distribution packaging.
-CXXFLAGS+="-Wno-error"
-
-# Overrides BUILD_SHARED_LIBS flag since onnxruntime compiles individual components as static, and links
-# all together into a single shared library when onnxruntime_BUILD_SHARED_LIB is ON.
-# The array-bounds and dangling-reference checks have false positives.
-%global cmake_config \\\
- -DCMAKE_BUILD_TYPE=RelWithDebInfo \\\
- -Donnxruntime_BUILD_BENCHMARKS=OFF \\\
- -Donnxruntime_BUILD_SHARED_LIB=ON \\\
- -Donnxruntime_BUILD_UNIT_TESTS=ON \\\
- -Donnxruntime_ENABLE_PYTHON=ON \\\
- -DPYTHON_VERSION=%{python3_version} \\\
- -Donnxruntime_DISABLE_ABSEIL=ON \\\
- -Donnxruntime_USE_FULL_PROTOBUF=ON \\\
- -Donnxruntime_USE_NEURAL_SPEED=OFF \\\
- -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \\\
- -Deigen_SOURCE_PATH=/usr/include/eigen3 \\\
- -S cmake \\\
-
-%if %{with rocm}
-backend=rocm
-%cmake %cmake_config \
-    -DCMAKE_INSTALL_BINDIR=%{_lib}/rocm/bin \
-    -DCMAKE_INSTALL_INCLUDEDIR=%{_lib}/rocm/include \
-    -DCMAKE_INSTALL_LIBDIR=%{_lib}/rocm/lib \
-    -Donnxruntime_ENABLE_CPUINFO=ON \
-    -DCMAKE_HIP_ARCHITECTURES=%rocm_gpu_list_default \
-    -DCMAKE_HIP_COMPILER=%rocmllvm_bindir/clang++ \
-    -DCMAKE_HIP_PLATFORM=amd \
-%if %{with rocm_test}
-    -Donnxruntime_INSTALL_UNIT_TESTS=ON \
-%else
-    -Donnxruntime_INSTALL_UNIT_TESTS=OFF \
-%endif
-    -Donnxruntime_ROCM_HOME=%{_prefix} \
-    -Donnxruntime_USE_COMPOSABLE_KERNEL=OFF \
-    -Donnxruntime_USE_ROCM=ON
-
-%make_build
-%endif
-
-backend=cpu
-%cmake %cmake_config \
-    -DCMAKE_INSTALL_LIBDIR=%{_lib} \
-    -DCMAKE_INSTALL_INCLUDEDIR=include \
-%ifarch ppc64le
-    -Donnxruntime_ENABLE_CPUINFO=OFF \
-%else
-    -Donnxruntime_ENABLE_CPUINFO=ON \
-%endif
-    -Donnxruntime_INSTALL_UNIT_TESTS=OFF
-
-%make_build
-
+cd ../..
 # Build python libs
 mv ./onnxruntime ./onnxruntime.src
-cp -R ./%{__cmake_builddir}/onnxruntime ./onnxruntime
-cp ./%{__cmake_builddir}/requirements.txt ./requirements.txt
-%pyproject_wheel
+cp -a cmake/build/onnxruntime ./onnxruntime
+cp cmake/build/requirements.txt ./requirements.txt
+%py_build
+mv onnxruntime onnxruntime.bin
+mv onnxruntime.src onnxruntime
 
 %install
-%if %{with rocm}
-backend=rocm
-%make_install -C build
-%endif
+%ninja_install -C cmake/build
 
-backend=cpu
-%make_install -C build
 mkdir -p "%{buildroot}/%{_docdir}/"
 cp --preserve=timestamps -r "./docs/" "%{buildroot}/%{_docdir}/%{name}"
 
-%pyproject_install
-%pyproject_save_files onnxruntime
+%py_install
 
 ln -s "../../../../libonnxruntime_providers_shared.so.%{version}" "%{buildroot}/%{python3_sitearch}/onnxruntime/capi/libonnxruntime_providers_shared.so"
-
-%if %{with test}
-%check
-backend=cpu
-export GTEST_FILTER=-CApiTensorTest.load_huge_tensor_with_external_data
-%ctest
-%endif
 
 %files
 %license LICENSE
@@ -322,35 +180,10 @@ export GTEST_FILTER=-CApiTensorTest.load_huge_tensor_with_external_data
 %{_libdir}/pkgconfig/libonnxruntime.pc
 %{_libdir}/cmake/onnxruntime/*
 
-%files -n python3-onnxruntime -f %{pyproject_files}
+%files -n python-onnxruntime
 %{_bindir}/onnxruntime_test
-%{python3_sitearch}/onnxruntime/capi/libonnxruntime_providers_shared.so
+%{python3_sitearch}/onnxruntime-%{version}.dist-info
+%{python3_sitearch}/onnxruntime
 
 %files doc
-%{_docdir}/%{name}
-
-%if %{with rocm}
-%files rocm
-%license LICENSE
-%doc ThirdPartyNotices.txt
-%{_libdir}/rocm/lib/libonnxruntime.so.%{version}
-%{_libdir}/rocm/lib/libonnxruntime_providers_shared.so.%{version}
-%{_libdir}/rocm/lib/libonnxruntime_providers_rocm.so
-
-%files rocm-devel
-%dir %{_libdir}/rocm/include/onnxruntime/
-%dir %{_libdir}/rocm/lib/cmake/onnxruntime/
-%{_libdir}/rocm/include/onnxruntime/*
-%{_libdir}/rocm/lib/libonnxruntime.so*
-%{_libdir}/rocm/lib/libonnxruntime_providers_shared.so
-%{_libdir}/rocm/lib/pkgconfig/libonnxruntime.pc
-%{_libdir}/rocm/lib/cmake/onnxruntime/*
-
-%if %{with rocm_test}
-%files rocm-test
-%{_libdir}/rocm/bin/*
-%endif
-%endif
-* Wed Aug 16 2023 Alejandro Alvarez Ayllon <a.alvarezayllon@gmail.com> - 1.15.1-1
-- Initial import (fedora#2021459).
-## END: Generated by rpmautospec
+%doc %{_docdir}/%{name}
