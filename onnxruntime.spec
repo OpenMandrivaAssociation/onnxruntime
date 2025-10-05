@@ -87,7 +87,7 @@ BuildRequires:  python-setuptools
 BuildRequires:  python-wheel
 BuildRequires:  python-pip
 BuildRequires:  pkgconfig(re2)
-#BuildRequires:  safeint-devel
+BuildRequires:  safeint-devel
 BuildRequires:  pkgconfig(zlib)
 Buildrequires:  pkgconfig(eigen3)
 BuildRequires:  pkgconfig(pybind11)
