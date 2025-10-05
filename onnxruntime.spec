@@ -7,7 +7,7 @@
 
 Summary:    A cross-platform inferencing and training accelerator
 Name:       onnxruntime
-Version:    1.20.1
+Version:    1.21.1
 Release:    1
 License:    MIT and ASL-2.0 and Boost and BSD
 URL:        https://github.com/microsoft/onnxruntime
@@ -17,14 +17,13 @@ Source0:    https://github.com/microsoft/onnxruntime/archive/v%{version}/%{name}
 Patch:      0000-dont-install-tests.patch
 # Use the system flatbuffers
 Patch:      0001-system-flatbuffers.patch
+Patch:      system-flatbuffers-part2.patch
 # Use the system protobuf
 Patch:      0002-system-protobuf.patch
 # Use the system onnx
 Patch:      0003-system-onnx.patch
 # Fedora targets power8 or higher
 Patch:      0004-disable-power10.patch
-# Do not use nsync
-Patch:      0005-no-nsync.patch
 # Do not link against WIL
 Patch:      0006-remove-wil.patch
 # Use the system safeint
@@ -37,6 +36,8 @@ Patch:      0009-gcc-false-positive.patch
 Patch:      0010-disable-pytorch-tests.patch
 # Use the system date and boost
 Patch:      0011-system-date-and-mp11.patch
+# New mp11 references in 1.21
+Patch:      system-mp11-part2.patch
 # Use the system cpuinfo
 Patch:      0012-system-cpuinfo.patch
 # Trigger onnx fix for onnxruntime_providers_shared
@@ -50,18 +51,18 @@ Patch:      0016-missing-cpp-headers.patch
 # Revert https://github.com/microsoft/onnxruntime/pull/21492 until
 # Fedora's Eigen3 is compatible with the fix.
 Patch:      0017-revert-nan-propagation-bugfix.patch
-# Backport upstream implementation of onnx
-# from https://github.com/microsoft/onnxruntime/pull/21897
-Patch:      0019-backport-onnx-1.17.0-support.patch
 Patch:      0020-disable-locale-tests.patch
-Patch:      0021-fix-range-loop-construct.patch
 Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
-
-Patch:		onnxruntime-compile.patch
+Patch:      onnxruntime-system-eigen.patch
+Patch:      abseil-cpp-2508.patch
+# Needed because current abseil-cpp headers rely on C++20 or higher
+Patch:      onnxruntime-c++20.patch
+Patch:      onnxruntime-1.21.1-clang.patch
 
 BuildRequires:  cmake
 BuildRequires:  make
 BuildRequires:	cmake(onnx)
+BuildRequires:	cmake(Eigen3)
 BuildRequires:  pkgconfig(absl_any)
 BuildRequires:  boost-devel >= 1.66
 BuildRequires:  bzip2

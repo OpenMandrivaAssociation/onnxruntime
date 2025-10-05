@@ -1,0 +1,36 @@
+diff -up onnxruntime-1.21.1/cmake/onnxruntime_graph.cmake.omv~ onnxruntime-1.21.1/cmake/onnxruntime_graph.cmake
+--- onnxruntime-1.21.1/cmake/onnxruntime_graph.cmake.omv~	2025-10-05 20:15:08.665168575 +0200
++++ onnxruntime-1.21.1/cmake/onnxruntime_graph.cmake	2025-10-05 20:15:12.824545833 +0200
+@@ -96,7 +96,7 @@ endif()
+ 
+ onnxruntime_add_static_library(onnxruntime_graph ${onnxruntime_graph_src} ${orttraining_graph_src})
+ add_dependencies(onnxruntime_graph onnx_proto flatbuffers::flatbuffers)
+-onnxruntime_add_include_to_target(onnxruntime_graph onnxruntime_common onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers safeint_interface Boost::mp11)
++onnxruntime_add_include_to_target(onnxruntime_graph onnxruntime_common onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers safeint_interface Boost::boost)
+ 
+ if (MSVC)
+   set(ONNX_PROTOBUF_NATVIS_FILE "onnx_protobuf.natvis")
+diff -up onnxruntime-1.21.1/cmake/onnxruntime_providers_vsinpu.cmake.omv~ onnxruntime-1.21.1/cmake/onnxruntime_providers_vsinpu.cmake
+--- onnxruntime-1.21.1/cmake/onnxruntime_providers_vsinpu.cmake.omv~	2025-10-05 20:15:22.190043183 +0200
++++ onnxruntime-1.21.1/cmake/onnxruntime_providers_vsinpu.cmake	2025-10-05 20:15:27.606540185 +0200
+@@ -10,7 +10,7 @@
+   source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_vsinpu_srcs})
+   add_library(onnxruntime_providers_vsinpu ${onnxruntime_providers_vsinpu_srcs})
+   onnxruntime_add_include_to_target(onnxruntime_providers_vsinpu
+-    onnxruntime_common onnxruntime_framework onnx onnx_proto protobuf::libprotobuf-lite flatbuffers Boost::mp11
++    onnxruntime_common onnxruntime_framework onnx onnx_proto protobuf::libprotobuf-lite flatbuffers Boost::boost
+     safeint_interface )
+   add_dependencies(onnxruntime_providers_vsinpu ${onnxruntime_EXTERNAL_DEPENDENCIES})
+   set_target_properties(onnxruntime_providers_vsinpu PROPERTIES FOLDER "ONNXRuntime" LINKER_LANGUAGE CXX)
+diff -up onnxruntime-1.21.1/cmake/onnxruntime_providers_webgpu.cmake.omv~ onnxruntime-1.21.1/cmake/onnxruntime_providers_webgpu.cmake
+--- onnxruntime-1.21.1/cmake/onnxruntime_providers_webgpu.cmake.omv~	2025-10-05 20:15:36.405365070 +0200
++++ onnxruntime-1.21.1/cmake/onnxruntime_providers_webgpu.cmake	2025-10-05 20:15:39.555805395 +0200
+@@ -21,7 +21,7 @@
+   source_group(TREE ${REPO_ROOT} FILES ${onnxruntime_providers_webgpu_cc_srcs})
+   onnxruntime_add_static_library(onnxruntime_providers_webgpu ${onnxruntime_providers_webgpu_cc_srcs})
+   onnxruntime_add_include_to_target(onnxruntime_providers_webgpu
+-    onnxruntime_common onnx onnx_proto flatbuffers::flatbuffers Boost::mp11 safeint_interface)
++    onnxruntime_common onnx onnx_proto flatbuffers::flatbuffers Boost::boost safeint_interface)
+ 
+   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+     # target "emdawnwebgpu_c" is created by Dawn, including "-fno-exceptions" in its compile options by default.

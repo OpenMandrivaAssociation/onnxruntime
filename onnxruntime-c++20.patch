@@ -1,0 +1,16 @@
+diff -up onnxruntime-1.21.1/cmake/CMakeLists.txt.omv~ onnxruntime-1.21.1/cmake/CMakeLists.txt
+--- onnxruntime-1.21.1/cmake/CMakeLists.txt.omv~	2025-10-05 20:22:19.992454626 +0200
++++ onnxruntime-1.21.1/cmake/CMakeLists.txt	2025-10-05 20:22:27.079149963 +0200
+@@ -31,12 +31,7 @@ include(FetchContent)
+ include(CheckFunctionExists)
+ include(GNUInstallDirs) # onnxruntime_providers_* require CMAKE_INSTALL_* variables
+ 
+-# TODO: update this once all system adapt c++20
+-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+ set(CMAKE_CXX_STANDARD 20)
+-else()
+-set(CMAKE_CXX_STANDARD 17)
+-endif()
+ 
+ if (MSVC)
+   #  Make sure Visual Studio sets __cplusplus macro correctly: https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
