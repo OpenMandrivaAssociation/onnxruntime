@@ -7,61 +7,16 @@
 
 Summary:    A cross-platform inferencing and training accelerator
 Name:       onnxruntime
-Version:    1.21.1
+Version:    1.22.2
 Release:    1
 License:    MIT and ASL-2.0 and Boost and BSD
 URL:        https://github.com/microsoft/onnxruntime
 Source0:    https://github.com/microsoft/onnxruntime/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# Add an option to not install the tests
-Patch:      0000-dont-install-tests.patch
-# Use the system flatbuffers
-Patch:      0001-system-flatbuffers.patch
-Patch:      system-flatbuffers-part2.patch
-# Use the system protobuf
-Patch:      0002-system-protobuf.patch
-# Use the system onnx
-Patch:      0003-system-onnx.patch
-# Fedora targets power8 or higher
-Patch:      0004-disable-power10.patch
-# Do not link against WIL
-Patch:      0006-remove-wil.patch
-# Use the system safeint
-Patch:      0007-system-safeint.patch
-# Versioned libonnxruntime_providers_shared.so
-Patch:      0008-versioned-onnxruntime_providers_shared.patch
-# Disable gcc -Werrors with false positives
-Patch:      0009-gcc-false-positive.patch
-# Test data not available 
-Patch:      0010-disable-pytorch-tests.patch
-# Use the system date and boost
-Patch:      0011-system-date-and-mp11.patch
-# New mp11 references in 1.21
-Patch:      system-mp11-part2.patch
-# Use the system cpuinfo
-Patch:      0012-system-cpuinfo.patch
-# Trigger onnx fix for onnxruntime_providers_shared
-Patch:      0013-onnx-onnxruntime-fix.patch
-# Use the system python version
-Patch:      0014-system-python.patch
-# Fix errors when DISABLE_ABSEIL=ON
-#Patch:      0015-abseil-disabled-fix.patch
-# Fix missing includes
-Patch:      0016-missing-cpp-headers.patch
-# Revert https://github.com/microsoft/onnxruntime/pull/21492 until
-# Fedora's Eigen3 is compatible with the fix.
-Patch:      0017-revert-nan-propagation-bugfix.patch
-Patch:      0020-disable-locale-tests.patch
-Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
-Patch:      onnxruntime-system-eigen.patch
-Patch:      abseil-cpp-2508.patch
-# Needed because current abseil-cpp headers rely on C++20 or higher
-Patch:      onnxruntime-c++20.patch
-Patch:      onnxruntime-1.21.1-clang.patch
-
 BuildRequires:  cmake
 BuildRequires:  make
 BuildRequires:	cmake(onnx)
+BuildRequires:	cmake(date)
 BuildRequires:	cmake(Eigen3)
 BuildRequires:  pkgconfig(absl_any)
 BuildRequires:  boost-devel >= 1.66
@@ -93,6 +48,15 @@ BuildRequires:  pkgconfig(zlib)
 Buildrequires:  pkgconfig(eigen3)
 BuildRequires:  pkgconfig(pybind11)
 BuildRequires:	pkgconfig(libcpuinfo)
+
+%patchlist
+https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-add-a-missing-include-of-cstdint.patch
+https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-relax-the-dependency-on-flatbuffers.patch
+https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-use-system-libraries.patch
+onnxruntime-system-eigen.patch
+abseil-cpp-2508.patch
+onnxruntime-c++20.patch
+onnxruntime-1.21.1-clang.patch
 
 %description
 %{name} is a cross-platform inferencing and training accelerator compatible
@@ -143,19 +107,18 @@ cd cmake
 	-Donnxruntime_USE_NEURAL_SPEED=OFF \
 -Donnxruntime_USE_PREINSTALLED_EIGEN=ON \
 	-Deigen_SOURCE_PATH=/usr/include/eigen3 \
+	-Dsafeint_SOURCE_DIR=%{_includedir}/SafeInt \
 	-Donnxruntime_ENABLE_CPUINFO=ON \
-	-Donnxruntime_INSTALL_UNIT_TESTS=OFF
+	-Donnxruntime_INSTALL_UNIT_TESTS=OFF \
+	-Donnxruntime_ENABLE_DLPACK:BOOL=OFF
 
 %ninja_build
 
 cd ../..
-# Build python libs
-mv ./onnxruntime ./onnxruntime.src
-cp -a cmake/build/onnxruntime ./onnxruntime
-cp cmake/build/requirements.txt ./requirements.txt
+
+# Build python libs (they need files from an in-tree build...)
+cp -r cmake/build/onnxruntime/* onnxruntime
 %py_build
-mv onnxruntime onnxruntime.bin
-mv onnxruntime.src onnxruntime
 
 %install
 %ninja_install -C cmake/build
@@ -165,19 +128,16 @@ cp --preserve=timestamps -r "./docs/" "%{buildroot}/%{_docdir}/%{name}"
 
 %py_install
 
-ln -s "../../../../libonnxruntime_providers_shared.so.%{version}" "%{buildroot}/%{python3_sitearch}/onnxruntime/capi/libonnxruntime_providers_shared.so"
-
 %files
 %license LICENSE
 %doc ThirdPartyNotices.txt
 %{_libdir}/libonnxruntime.so.%{version}
-%{_libdir}/libonnxruntime_providers_shared.so.%{version}
+%{_libdir}/libonnxruntime_providers_shared.so
 
 %files devel
 %dir %{_includedir}/onnxruntime/
 %{_includedir}/onnxruntime/*
 %{_libdir}/libonnxruntime.so*
-%{_libdir}/libonnxruntime_providers_shared.so
 %{_libdir}/pkgconfig/libonnxruntime.pc
 %{_libdir}/cmake/onnxruntime/*
 

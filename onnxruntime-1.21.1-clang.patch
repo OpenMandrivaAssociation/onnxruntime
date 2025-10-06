@@ -1,38 +1,8 @@
-diff -up onnxruntime-1.21.1/onnxruntime/core/framework/node_unit.cc.omv~ onnxruntime-1.21.1/onnxruntime/core/framework/node_unit.cc
---- onnxruntime-1.21.1/onnxruntime/core/framework/node_unit.cc.omv~	2025-10-05 20:33:13.193320650 +0200
-+++ onnxruntime-1.21.1/onnxruntime/core/framework/node_unit.cc	2025-10-05 20:33:23.365611367 +0200
-@@ -1,7 +1,9 @@
- // Copyright (c) Microsoft Corporation. All rights reserved.
- // Licensed under the MIT License.
- 
-+#ifndef __clang__
- #pragma GCC diagnostic ignored "-Wstringop-overflow"
-+#endif
- 
- #if !defined(ORT_MINIMAL_BUILD) || defined(ORT_EXTENDED_MINIMAL_BUILD)
- 
-diff -up onnxruntime-1.21.1/onnxruntime/core/framework/resource_accountant.cc.omv~ onnxruntime-1.21.1/onnxruntime/core/framework/resource_accountant.cc
---- onnxruntime-1.21.1/onnxruntime/core/framework/resource_accountant.cc.omv~	2025-10-05 20:28:07.390435074 +0200
-+++ onnxruntime-1.21.1/onnxruntime/core/framework/resource_accountant.cc	2025-10-05 20:32:22.489954945 +0200
-@@ -147,7 +147,7 @@ static Status LoadNodeAllocationStats(
-     size_t initializers_sizes = SafeInt<size_t>(std::stoull(std::string{splits[2]}));
-     size_t total_dynamic_sizes = SafeInt<size_t>(std::stoull(std::string{splits[3]}));
-     size_t total_temp_allocations = SafeInt<size_t>(std::stoull(std::string{splits[4]}));
--    node_stats.insert_or_assign(std::move(node_name), {input_sizes, initializers_sizes,
-+    node_stats.insert_or_assign(std::move(node_name), NodeAllocationStats{input_sizes, initializers_sizes,
-                                                        total_dynamic_sizes, total_temp_allocations});
-   }
- 
-@@ -224,4 +224,4 @@ std::string IResourceAccountant::MakeUni
-   return result;
- }
- 
--}  // namespace onnxruntime
-\ No newline at end of file
-+}  // namespace onnxruntime
-diff -up onnxruntime-1.21.1/onnxruntime/core/mlas/lib/mlasi.h.omv~ onnxruntime-1.21.1/onnxruntime/core/mlas/lib/mlasi.h
---- onnxruntime-1.21.1/onnxruntime/core/mlas/lib/mlasi.h.omv~	2025-10-05 20:25:41.693670675 +0200
-+++ onnxruntime-1.21.1/onnxruntime/core/mlas/lib/mlasi.h	2025-10-05 20:25:54.101846114 +0200
+diff -up onnxruntime-1.22.2/onnxruntime/core/framework/node_unit.cc.6~ onnxruntime-1.22.2/onnxruntime/core/framework/node_unit.cc
+diff -up onnxruntime-1.22.2/onnxruntime/core/framework/resource_accountant.cc.6~ onnxruntime-1.22.2/onnxruntime/core/framework/resource_accountant.cc
+diff -up onnxruntime-1.22.2/onnxruntime/core/mlas/lib/mlasi.h.6~ onnxruntime-1.22.2/onnxruntime/core/mlas/lib/mlasi.h
+--- onnxruntime-1.22.2/onnxruntime/core/mlas/lib/mlasi.h.6~	2025-08-12 18:38:01.000000000 +0200
++++ onnxruntime-1.22.2/onnxruntime/core/mlas/lib/mlasi.h	2025-10-05 23:53:56.008194195 +0200
 @@ -53,7 +53,7 @@ Abstract:
  #if !defined(signature_VORTEX_ebx) && !defined(signature_NEXGEN_ebx) && !defined(signature_AMD_ebx)//workaround for Bug 96238 - [i386] cpuid.h header needs include guards
  #include <cpuid.h>
@@ -42,9 +12,9 @@ diff -up onnxruntime-1.21.1/onnxruntime/core/mlas/lib/mlasi.h.omv~ onnxruntime-1
  #pragma GCC diagnostic push
  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"  // GCC 12 warns about uninitialized variables in immintrin.h.
  #include <immintrin.h>
-diff -up onnxruntime-1.21.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.omv~ onnxruntime-1.21.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp
---- onnxruntime-1.21.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.omv~	2025-10-05 20:37:39.236497008 +0200
-+++ onnxruntime-1.21.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp	2025-10-05 20:37:48.514295365 +0200
+diff -up onnxruntime-1.22.2/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.6~ onnxruntime-1.22.2/onnxruntime/core/mlas/lib/q4_dq_cli.cpp
+--- onnxruntime-1.22.2/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.6~	2025-08-12 18:38:01.000000000 +0200
++++ onnxruntime-1.22.2/onnxruntime/core/mlas/lib/q4_dq_cli.cpp	2025-10-05 23:53:56.008538735 +0200
 @@ -218,7 +218,7 @@ quantize(const Cli& cli)
          } else {
              buf = std::cout.rdbuf();
@@ -54,16 +24,4 @@ diff -up onnxruntime-1.21.1/onnxruntime/core/mlas/lib/q4_dq_cli.cpp.omv~ onnxrun
  #pragma GCC diagnostic push
  #pragma GCC diagnostic ignored \
      "-Wdangling-pointer"  // TODO: suppress warning about dangling pointer until we have a fix
-diff -up onnxruntime-1.21.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc.omv~ onnxruntime-1.21.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc
---- onnxruntime-1.21.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc.omv~	2025-10-05 20:37:18.367452438 +0200
-+++ onnxruntime-1.21.1/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc	2025-10-05 20:37:25.078229298 +0200
-@@ -1,7 +1,9 @@
- // Copyright (c) Microsoft Corporation. All rights reserved.
- // Licensed under the MIT License.
- 
-+#ifndef __clang__
- #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-+#endif
- 
- #include "core/optimizer/selectors_actions/selector_action_transformer.h"
- 
+diff -up onnxruntime-1.22.2/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc.6~ onnxruntime-1.22.2/onnxruntime/core/optimizer/selectors_actions/selector_action_transformer.cc

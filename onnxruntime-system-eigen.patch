@@ -1,7 +1,7 @@
-diff -up onnxruntime-1.21.1/cmake/external/onnxruntime_external_deps.cmake.omv~ onnxruntime-1.21.1/cmake/external/onnxruntime_external_deps.cmake
---- onnxruntime-1.21.1/cmake/external/onnxruntime_external_deps.cmake.omv~	2025-10-05 20:12:33.171781501 +0200
-+++ onnxruntime-1.21.1/cmake/external/onnxruntime_external_deps.cmake	2025-10-05 20:12:50.747378812 +0200
-@@ -471,11 +471,7 @@ if(TARGET ONNX::onnx_proto AND NOT TARGE
+diff -up onnxruntime-1.22.2/cmake/external/onnxruntime_external_deps.cmake.4~ onnxruntime-1.22.2/cmake/external/onnxruntime_external_deps.cmake
+--- onnxruntime-1.22.2/cmake/external/onnxruntime_external_deps.cmake.4~	2025-10-06 02:15:02.247982092 +0200
++++ onnxruntime-1.22.2/cmake/external/onnxruntime_external_deps.cmake	2025-10-06 02:15:31.432048378 +0200
+@@ -534,11 +534,7 @@ if(TARGET ONNX::onnx_proto AND NOT TARGE
    message(STATUS "Aliasing ONNX::onnx_proto to onnx_proto")
    add_library(onnx_proto ALIAS ONNX::onnx_proto)
  endif()
@@ -12,5 +12,5 @@ diff -up onnxruntime-1.21.1/cmake/external/onnxruntime_external_deps.cmake.omv~ 
 -endif()
 +find_package(Eigen3 CONFIG REQUIRED)
  
- # XNNPACK EP
- if (onnxruntime_USE_XNNPACK)
+ if(WIN32)
+   if(onnxruntime_USE_VCPKG)
