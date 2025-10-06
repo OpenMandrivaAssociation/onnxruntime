@@ -7,7 +7,7 @@
 
 Summary:    A cross-platform inferencing and training accelerator
 Name:       onnxruntime
-Version:    1.22.2
+Version:    1.23.0
 Release:    1
 License:    MIT and ASL-2.0 and Boost and BSD
 URL:        https://github.com/microsoft/onnxruntime
@@ -50,13 +50,14 @@ BuildRequires:  pkgconfig(pybind11)
 BuildRequires:	pkgconfig(libcpuinfo)
 
 %patchlist
-https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-add-a-missing-include-of-cstdint.patch
 https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-relax-the-dependency-on-flatbuffers.patch
-https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-use-system-libraries.patch
+# based on https://data.gpo.zugaina.org/guru/sci-libs/onnxruntime/files/onnxruntime-1.22.2-use-system-libraries.patch
+onnxruntime-1.22.2-use-system-libraries.patch
 onnxruntime-system-eigen.patch
 abseil-cpp-2508.patch
 onnxruntime-c++20.patch
 onnxruntime-1.21.1-clang.patch
+onnxruntime-1.23.0-clang.patch
 
 %description
 %{name} is a cross-platform inferencing and training accelerator compatible
@@ -110,7 +111,8 @@ cd cmake
 	-Dsafeint_SOURCE_DIR=%{_includedir}/SafeInt \
 	-Donnxruntime_ENABLE_CPUINFO=ON \
 	-Donnxruntime_INSTALL_UNIT_TESTS=OFF \
-	-Donnxruntime_ENABLE_DLPACK:BOOL=OFF
+	-Donnxruntime_ENABLE_DLPACK:BOOL=OFF \
+	-DCMAKE_CXX_STANDARD=20
 
 %ninja_build
 

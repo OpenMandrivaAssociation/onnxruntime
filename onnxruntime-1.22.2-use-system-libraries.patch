@@ -1,24 +1,19 @@
-From: Pavel Sobolev <contact@paveloom.dev>
-Subject: [PATCH] Use system libraries.
-
-Everything, except for Eigen3.
-
-Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
-
---- a/cmake/external/abseil-cpp.cmake
-+++ b/cmake/external/abseil-cpp.cmake
-@@ -28,7 +28,7 @@ onnxruntime_fetchcontent_declare(
+diff -up onnxruntime-1.23.0/cmake/external/abseil-cpp.cmake.2~ onnxruntime-1.23.0/cmake/external/abseil-cpp.cmake
+--- onnxruntime-1.23.0/cmake/external/abseil-cpp.cmake.2~	2025-09-25 03:34:17.000000000 +0200
++++ onnxruntime-1.23.0/cmake/external/abseil-cpp.cmake	2025-10-06 03:08:32.670988628 +0200
+@@ -36,7 +36,7 @@ onnxruntime_fetchcontent_declare(
      URL_HASH SHA1=${DEP_SHA1_abseil_cpp}
      EXCLUDE_FROM_ALL
      PATCH_COMMAND ${ABSL_PATCH_COMMAND}
--    FIND_PACKAGE_ARGS 20240722 NAMES absl
+-    FIND_PACKAGE_ARGS 20250512 NAMES absl
 +    FIND_PACKAGE_ARGS NAMES absl REQUIRED
  )
  
  onnxruntime_fetchcontent_makeavailable(abseil_cpp)
---- a/cmake/external/onnxruntime_external_deps.cmake
-+++ b/cmake/external/onnxruntime_external_deps.cmake
-@@ -40,7 +40,7 @@ onnxruntime_fetchcontent_declare(
+diff -up onnxruntime-1.23.0/cmake/external/onnxruntime_external_deps.cmake.2~ onnxruntime-1.23.0/cmake/external/onnxruntime_external_deps.cmake
+--- onnxruntime-1.23.0/cmake/external/onnxruntime_external_deps.cmake.2~	2025-09-25 03:34:17.000000000 +0200
++++ onnxruntime-1.23.0/cmake/external/onnxruntime_external_deps.cmake	2025-10-06 03:09:36.931085849 +0200
+@@ -43,7 +43,7 @@ onnxruntime_fetchcontent_declare(
      URL ${DEP_URL_re2}
      URL_HASH SHA1=${DEP_SHA1_re2}
      EXCLUDE_FROM_ALL
@@ -27,7 +22,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  )
  onnxruntime_fetchcontent_makeavailable(re2)
  
-@@ -68,7 +68,7 @@ if (onnxruntime_BUILD_UNIT_TESTS)
+@@ -71,7 +71,7 @@ if (onnxruntime_BUILD_UNIT_TESTS)
      URL ${DEP_URL_googletest}
      URL_HASH SHA1=${DEP_SHA1_googletest}
      EXCLUDE_FROM_ALL
@@ -36,7 +31,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
    FetchContent_MakeAvailable(googletest)
  endif()
-@@ -84,7 +84,7 @@ if (onnxruntime_BUILD_BENCHMARKS)
+@@ -87,7 +87,7 @@ if (onnxruntime_BUILD_BENCHMARKS)
      URL ${DEP_URL_google_benchmark}
      URL_HASH SHA1=${DEP_SHA1_google_benchmark}
      EXCLUDE_FROM_ALL
@@ -45,7 +40,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
    onnxruntime_fetchcontent_makeavailable(google_benchmark)
  endif()
-@@ -102,7 +102,7 @@ if(onnxruntime_USE_MIMALLOC)
+@@ -105,7 +105,7 @@ if(onnxruntime_USE_MIMALLOC)
      URL ${DEP_URL_mimalloc}
      URL_HASH SHA1=${DEP_SHA1_mimalloc}
      EXCLUDE_FROM_ALL
@@ -54,7 +49,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
    FetchContent_MakeAvailable(mimalloc)
  endif()
-@@ -191,7 +191,7 @@ onnxruntime_fetchcontent_declare(
+@@ -198,7 +198,7 @@ onnxruntime_fetchcontent_declare(
    URL_HASH SHA1=${DEP_SHA1_protobuf}
    PATCH_COMMAND ${ONNXRUNTIME_PROTOBUF_PATCH_COMMAND}
    EXCLUDE_FROM_ALL
@@ -63,7 +58,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  )
  
  set(protobuf_BUILD_TESTS OFF CACHE BOOL "Build protobuf tests" FORCE)
-@@ -271,7 +271,7 @@ onnxruntime_fetchcontent_declare(
+@@ -278,7 +278,7 @@ onnxruntime_fetchcontent_declare(
    URL ${DEP_URL_date}
    URL_HASH SHA1=${DEP_SHA1_date}
    EXCLUDE_FROM_ALL
@@ -72,16 +67,16 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  )
  onnxruntime_fetchcontent_makeavailable(date)
  
-@@ -285,7 +285,7 @@ if(NOT TARGET Boost::mp11)
+@@ -292,7 +292,7 @@ if(NOT TARGET Boost::mp11)
       mp11
       URL ${DEP_URL_mp11}
       EXCLUDE_FROM_ALL
 -     FIND_PACKAGE_ARGS NAMES Boost
 +     FIND_PACKAGE_ARGS NAMES Boost REQUIRED
      )
-     onnxruntime_fetchcontent_makeavailable(mp11)
+     FetchContent_Populate(mp11)
      if(NOT TARGET Boost::mp11)
-@@ -302,7 +302,7 @@ onnxruntime_fetchcontent_declare(
+@@ -310,7 +310,7 @@ onnxruntime_fetchcontent_declare(
      URL ${DEP_URL_json}
      URL_HASH SHA1=${DEP_SHA1_json}
      EXCLUDE_FROM_ALL
@@ -90,7 +85,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  )
  onnxruntime_fetchcontent_makeavailable(nlohmann_json)
  
-@@ -366,7 +366,7 @@ if (CPUINFO_SUPPORTED)
+@@ -380,7 +380,7 @@ if (CPUINFO_SUPPORTED)
          URL_HASH SHA1=${DEP_SHA1_pytorch_cpuinfo}
          EXCLUDE_FROM_ALL
          PATCH_COMMAND ${Patch_EXECUTABLE} -p1 < ${PROJECT_SOURCE_DIR}/patches/cpuinfo/9bb12d342fd9479679d505d93a478a6f9cd50a47.patch
@@ -99,7 +94,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
        )
    else()
        onnxruntime_fetchcontent_declare(
-@@ -374,7 +374,7 @@ if (CPUINFO_SUPPORTED)
+@@ -388,7 +388,7 @@ if (CPUINFO_SUPPORTED)
          URL ${DEP_URL_pytorch_cpuinfo}
          URL_HASH SHA1=${DEP_SHA1_pytorch_cpuinfo}
          EXCLUDE_FROM_ALL
@@ -108,7 +103,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
        )
    endif()
    set(ONNXRUNTIME_CPUINFO_PROJ pytorch_cpuinfo)
-@@ -392,7 +392,7 @@ if(onnxruntime_USE_CUDA)
+@@ -406,7 +406,7 @@ if(onnxruntime_USE_CUDA)
      URL_HASH SHA1=${DEP_SHA1_microsoft_gsl}
      PATCH_COMMAND ${Patch_EXECUTABLE} --binary --ignore-whitespace -p1 < ${PROJECT_SOURCE_DIR}/patches/gsl/1064.patch
      EXCLUDE_FROM_ALL
@@ -117,7 +112,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
  else()
    onnxruntime_fetchcontent_declare(
-@@ -400,14 +400,14 @@ else()
+@@ -414,7 +414,7 @@ else()
      URL ${DEP_URL_microsoft_gsl}
      URL_HASH SHA1=${DEP_SHA1_microsoft_gsl}
      EXCLUDE_FROM_ALL
@@ -126,15 +121,16 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
  endif()
  set(GSL_TARGET "Microsoft.GSL::GSL")
- set(GSL_INCLUDE_DIR "$<TARGET_PROPERTY:${GSL_TARGET},INTERFACE_INCLUDE_DIRECTORIES>")
- onnxruntime_fetchcontent_makeavailable(GSL)
+@@ -428,7 +428,7 @@ if (NOT GSL_FOUND AND NOT onnxruntime_BU
+   RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
+ endif()
  
 -find_path(safeint_SOURCE_DIR NAMES "SafeInt.hpp")
 +find_path(safeint_SOURCE_DIR NAMES "SafeInt.hpp" REQUIRED)
  if(NOT safeint_SOURCE_DIR)
    unset(safeint_SOURCE_DIR)
    onnxruntime_fetchcontent_declare(
-@@ -449,10 +449,14 @@ onnxruntime_fetchcontent_declare(
+@@ -470,10 +470,14 @@ onnxruntime_fetchcontent_declare(
      URL_HASH SHA1=${DEP_SHA1_flatbuffers}
      PATCH_COMMAND ${ONNXRUNTIME_FLATBUFFERS_PATCH_COMMAND}
      EXCLUDE_FROM_ALL
@@ -150,16 +146,16 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  if(NOT flatbuffers_FOUND)
    if(NOT TARGET flatbuffers::flatbuffers)
      add_library(flatbuffers::flatbuffers ALIAS flatbuffers)
-@@ -514,7 +514,7 @@ onnxruntime_fetchcontent_declare(
+@@ -535,7 +539,7 @@ onnxruntime_fetchcontent_declare(
    URL_HASH SHA1=${DEP_SHA1_onnx}
    PATCH_COMMAND ${ONNXRUNTIME_ONNX_PATCH_COMMAND}
    EXCLUDE_FROM_ALL
 -  FIND_PACKAGE_ARGS NAMES ONNX onnx
 +  FIND_PACKAGE_ARGS NAMES ONNX onnx REQUIRED
  )
- if (NOT onnxruntime_MINIMAL_BUILD)
-   onnxruntime_fetchcontent_makeavailable(onnx)
-@@ -597,7 +597,7 @@ if(onnxruntime_ENABLE_DLPACK)
+ 
+ onnxruntime_fetchcontent_makeavailable(onnx)
+@@ -611,7 +615,7 @@ if(onnxruntime_ENABLE_DLPACK)
      URL ${DEP_URL_dlpack}
      URL_HASH SHA1=${DEP_SHA1_dlpack}
      EXCLUDE_FROM_ALL
@@ -168,7 +164,7 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
    onnxruntime_fetchcontent_makeavailable(dlpack)
  endif()
-@@ -610,7 +610,7 @@ if(onnxruntime_ENABLE_TRAINING OR (onnxruntime_ENABLE_TRAINING_APIS AND onnxrunt
+@@ -624,7 +628,7 @@ if(onnxruntime_ENABLE_TRAINING OR (onnxr
      URL ${DEP_URL_cxxopts}
      URL_HASH SHA1=${DEP_SHA1_cxxopts}
      EXCLUDE_FROM_ALL
@@ -177,8 +173,9 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
    )
    set(CXXOPTS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
    set(CXXOPTS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
---- a/cmake/external/pybind11.cmake
-+++ b/cmake/external/pybind11.cmake
+diff -up onnxruntime-1.23.0/cmake/external/pybind11.cmake.2~ onnxruntime-1.23.0/cmake/external/pybind11.cmake
+--- onnxruntime-1.23.0/cmake/external/pybind11.cmake.2~	2025-09-25 03:34:17.000000000 +0200
++++ onnxruntime-1.23.0/cmake/external/pybind11.cmake	2025-10-06 03:07:51.175074788 +0200
 @@ -6,7 +6,7 @@ onnxruntime_fetchcontent_declare(
      URL ${DEP_URL_pybind11}
      URL_HASH SHA1=${DEP_SHA1_pybind11}
@@ -188,8 +185,9 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  )
  onnxruntime_fetchcontent_makeavailable(pybind11_project)
  
---- a/cmake/external/wil.cmake
-+++ b/cmake/external/wil.cmake
+diff -up onnxruntime-1.23.0/cmake/external/wil.cmake.2~ onnxruntime-1.23.0/cmake/external/wil.cmake
+--- onnxruntime-1.23.0/cmake/external/wil.cmake.2~	2025-09-25 03:34:17.000000000 +0200
++++ onnxruntime-1.23.0/cmake/external/wil.cmake	2025-10-06 03:07:51.175152965 +0200
 @@ -8,7 +8,7 @@ onnxruntime_fetchcontent_declare(
    URL ${DEP_URL_microsoft_wil}
    URL_HASH SHA1=${DEP_SHA1_microsoft_wil}
@@ -199,9 +197,10 @@ Signed-off-by: Pavel Sobolev <contact@paveloom.dev>
  )
  
  if(WIN32)
---- a/cmake/external/xnnpack.cmake
-+++ b/cmake/external/xnnpack.cmake
-@@ -17,11 +17,11 @@ if(CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a)
+diff -up onnxruntime-1.23.0/cmake/external/xnnpack.cmake.2~ onnxruntime-1.23.0/cmake/external/xnnpack.cmake
+--- onnxruntime-1.23.0/cmake/external/xnnpack.cmake.2~	2025-09-25 03:34:17.000000000 +0200
++++ onnxruntime-1.23.0/cmake/external/xnnpack.cmake	2025-10-06 03:07:51.175257012 +0200
+@@ -17,11 +17,11 @@ if(CMAKE_ANDROID_ARCH_ABI STREQUAL armea
  endif()
  
  # pthreadpool depends on fxdiv
