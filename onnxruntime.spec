@@ -59,7 +59,7 @@ Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
 
 Patch:		onnxruntime-compile.patch
 
-BuildRequires:  cmake
+BuildRequires:  cmake ninja
 BuildRequires:  make
 BuildRequires:	cmake(onnx)
 BuildRequires:  pkgconfig(absl_any)
