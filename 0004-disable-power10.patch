@@ -8,10 +8,10 @@ Subject: [PATCH 04/20] disable-power10
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/cmake/onnxruntime_mlas.cmake b/cmake/onnxruntime_mlas.cmake
-index 0ba4694c32..6951e6a860 100644
+index 319c897..e5d3f5d 100644
 --- a/cmake/onnxruntime_mlas.cmake
 +++ b/cmake/onnxruntime_mlas.cmake
-@@ -423,7 +423,8 @@ else()
+@@ -660,7 +660,8 @@ else()
            set_source_files_properties(${MLAS_SRC_DIR}/power/QuantizePowerVSX.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power9")
          endif()
  
@@ -21,6 +21,3 @@ index 0ba4694c32..6951e6a860 100644
          if(HAS_POWER10)
            set(CMAKE_REQUIRED_FLAGS "-mcpu=power10")
            check_cxx_source_compiles("
--- 
-2.47.1
-

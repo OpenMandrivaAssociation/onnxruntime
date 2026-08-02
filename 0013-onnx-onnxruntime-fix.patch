@@ -8,18 +8,18 @@ Subject: [PATCH 13/20] onnx-onnxruntime-fix
  1 file changed, 8 insertions(+)
 
 diff --git a/onnxruntime/core/session/onnxruntime_c_api.cc b/onnxruntime/core/session/onnxruntime_c_api.cc
-index e4c58ba51c..c3c12cae6b 100644
+index 22df898..bbac07f 100644
 --- a/onnxruntime/core/session/onnxruntime_c_api.cc
 +++ b/onnxruntime/core/session/onnxruntime_c_api.cc
 @@ -40,6 +40,7 @@
- #include "core/common/string_helper.h"
- 
- #include "core/session/lora_adapters.h"
+ #include "core/session/abi_session_options_impl.h"
+ #include "core/session/allocator_adapters.h"
+ #include "core/session/compile_api.h"
 +#include "onnx/onnxruntime_fix.h"
- 
- #ifdef USE_CUDA
- #include "core/providers/cuda/cuda_provider_factory.h"
-@@ -2870,6 +2871,13 @@ ORT_API(const char*, OrtApis::GetBuildInfoString) {
+ #include "core/session/environment.h"
+ #include "core/session/ep_graph_assignment_info.h"
+ #include "core/session/interop_api.h"
+@@ -4998,6 +4999,13 @@ ORT_API(const char*, OrtApis::GetBuildInfoString) {
  }
  
  const OrtApiBase* ORT_API_CALL OrtGetApiBase(void) NO_EXCEPTION {
@@ -33,6 +33,3 @@ index e4c58ba51c..c3c12cae6b 100644
    return &ort_api_base;
  }
  
--- 
-2.47.1
-

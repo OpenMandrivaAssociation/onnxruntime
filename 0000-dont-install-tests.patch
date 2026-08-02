@@ -9,24 +9,24 @@ Subject: [PATCH 00/20] dont-install-tests
  2 files changed, 8 insertions(+), 5 deletions(-)
 
 diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
-index d90a2a3550..c065dced6b 100644
+index c1a0581..53ee01b 100644
 --- a/cmake/CMakeLists.txt
 +++ b/cmake/CMakeLists.txt
-@@ -98,6 +98,7 @@ option(onnxruntime_USE_RKNPU "Build with RKNPU support" OFF)
- option(onnxruntime_USE_DNNL "Build with DNNL support" OFF)
- option(onnxruntime_USE_JSEP "Build with JavaScript implemented kernels support" OFF)
+@@ -97,6 +97,7 @@ option(onnxruntime_USE_ARM_NEON_NCHWC "Build with ARM Neon NCHWc kernels in MLAS
+ option(onnxruntime_USE_KLEIDIAI "Build with KleidiAI integration in MLAS" OFF)
+ option(onnxruntime_USE_QMX_KLEIDIAI_COEXIST "Build with QMX and Arm KLEIDIAI libraries" OFF)
  option(onnxruntime_BUILD_UNIT_TESTS "Build ONNXRuntime unit tests" ON)
 +option(onnxruntime_INSTALL_UNIT_TESTS "Install ONNXRuntime unit tests" ON)
  option(onnxruntime_BUILD_CSHARP "Build C# library" OFF)
  option(onnxruntime_BUILD_OBJC "Build Objective-C library" OFF)
  option(onnxruntime_USE_PREINSTALLED_EIGEN "Use pre-installed EIGEN. Need to provide eigen_SOURCE_PATH if turn this on." OFF)
 diff --git a/cmake/onnxruntime_unittests.cmake b/cmake/onnxruntime_unittests.cmake
-index cbae6990cd..3ebbfb8e59 100644
+index a6bf825..859a38d 100644
 --- a/cmake/onnxruntime_unittests.cmake
 +++ b/cmake/onnxruntime_unittests.cmake
-@@ -1146,11 +1146,13 @@ if (NOT IOS)
-       endif()
+@@ -1465,11 +1465,13 @@ if (NOT IOS)
      endif()
+     set_target_properties(onnx_test_runner PROPERTIES FOLDER "ONNXRuntimeTest")
  
 -    install(TARGETS onnx_test_runner
 -            ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -43,6 +43,3 @@ index cbae6990cd..3ebbfb8e59 100644
  endif()
  
  if (NOT onnxruntime_ENABLE_TRAINING_TORCH_INTEROP)
--- 
-2.47.1
-

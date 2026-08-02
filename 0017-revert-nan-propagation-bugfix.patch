@@ -9,10 +9,10 @@ Subject: [PATCH 17/20] revert-nan-propagation-bugfix
  2 files changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/onnxruntime/core/providers/cpu/math/element_wise_ops.cc b/onnxruntime/core/providers/cpu/math/element_wise_ops.cc
-index a78ff69e5c..0f40e140b1 100644
+index bfdd527..dc397c0 100644
 --- a/onnxruntime/core/providers/cpu/math/element_wise_ops.cc
 +++ b/onnxruntime/core/providers/cpu/math/element_wise_ops.cc
-@@ -705,7 +705,7 @@ Status Min_6<float>::Compute(OpKernelContext* ctx) const {
+@@ -896,7 +896,7 @@ Status Min_6<float>::Compute(OpKernelContext* ctx) const {
    for (int index = 1; index < inputCount; index++) {
      auto& data_n = *ctx->Input<Tensor>(index);
      ORT_ENFORCE(data_n.Shape() == shape, "All inputs must have the same shape");
@@ -21,7 +21,7 @@ index a78ff69e5c..0f40e140b1 100644
    }
  
    return Status::OK();
-@@ -721,15 +721,15 @@ struct Min_8::ComputeImpl {
+@@ -912,15 +912,15 @@ struct Min_8::ComputeImpl {
      ProcessBroadcastSpanFuncs funcs{
          [](BroadcastHelper& per_iter_bh) {
            per_iter_bh.OutputEigen<T>() =
@@ -40,7 +40,7 @@ index a78ff69e5c..0f40e140b1 100644
                    per_iter_bh.EigenInput1<T>().array());
          }};
  
-@@ -757,10 +757,10 @@ static Status MinMaxMLFloat16(const OpKernel& inst, OpKernelContext* context) {
+@@ -948,10 +948,10 @@ static Status MinMaxMLFloat16(const OpKernel& inst, OpKernelContext* context) {
          EigenVectorArrayMap<Eigen::half> output_vec_map(output, num_elements);
  
          if (is_min) {
@@ -53,7 +53,7 @@ index a78ff69e5c..0f40e140b1 100644
                static_cast<Eigen::half>(per_iter_bh.ScalarInput0<MLFloat16>()));
          }
        },
-@@ -774,10 +774,10 @@ static Status MinMaxMLFloat16(const OpKernel& inst, OpKernelContext* context) {
+@@ -965,10 +965,10 @@ static Status MinMaxMLFloat16(const OpKernel& inst, OpKernelContext* context) {
          EigenVectorArrayMap<Eigen::half> output_vec_map(output, num_elements);
  
          if (is_min) {
@@ -66,7 +66,7 @@ index a78ff69e5c..0f40e140b1 100644
                static_cast<Eigen::half>(per_iter_bh.ScalarInput1<MLFloat16>()));
          }
        },
-@@ -794,9 +794,9 @@ static Status MinMaxMLFloat16(const OpKernel& inst, OpKernelContext* context) {
+@@ -985,9 +985,9 @@ static Status MinMaxMLFloat16(const OpKernel& inst, OpKernelContext* context) {
          EigenVectorArrayMap<Eigen::half> output_vec_map(output, num_elements);
  
          if (is_min) {
@@ -78,7 +78,7 @@ index a78ff69e5c..0f40e140b1 100644
          }
        }};
  
-@@ -832,7 +832,7 @@ Status Max_6<float>::Compute(OpKernelContext* ctx) const {
+@@ -1024,7 +1024,7 @@ Status Max_6<float>::Compute(OpKernelContext* ctx) const {
    for (int index = 1; index < inputCount; index++) {
      auto& data_n = *ctx->Input<Tensor>(index);
      ORT_ENFORCE(data_n.Shape() == shape, "All inputs must have the same shape");
@@ -87,7 +87,7 @@ index a78ff69e5c..0f40e140b1 100644
    }
  
    return Status::OK();
-@@ -848,15 +848,15 @@ struct Max_8::ComputeImpl {
+@@ -1040,15 +1040,15 @@ struct Max_8::ComputeImpl {
      ProcessBroadcastSpanFuncs funcs{
          [](BroadcastHelper& per_iter_bh) {
            per_iter_bh.OutputEigen<T>() =
@@ -107,10 +107,10 @@ index a78ff69e5c..0f40e140b1 100644
          }};
  
 diff --git a/onnxruntime/test/providers/cpu/math/element_wise_ops_test.cc b/onnxruntime/test/providers/cpu/math/element_wise_ops_test.cc
-index b2e9034653..95c928c1c1 100644
+index 6be3c22..231e183 100644
 --- a/onnxruntime/test/providers/cpu/math/element_wise_ops_test.cc
 +++ b/onnxruntime/test/providers/cpu/math/element_wise_ops_test.cc
-@@ -1581,7 +1581,7 @@ TEST(MathOpTest, Min_12_Float_Nan) {
+@@ -2119,7 +2119,7 @@ TEST(MathOpTest, Min_12_Float_Nan) {
    }
  }
  
@@ -119,7 +119,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Min", 12);
    test.AddInput<float>("data_1", {3, 1},
                         {std::numeric_limits<float>::quiet_NaN(), -0.5f, 0.5f});
-@@ -1600,7 +1600,7 @@ TEST(MathOpTest, Min_12_Float_Nan_with_scalar) {
+@@ -2138,7 +2138,7 @@ TEST(MathOpTest, Min_12_Float_Nan_with_scalar) {
    }
  }
  
@@ -128,7 +128,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Min", 12);
    test.AddInput<float>("data_1", {2, 2},
                         {0.25f, -0.25f, -0.5f, 0.5f});
-@@ -1667,7 +1667,7 @@ TEST(MathOpTest, Min_12_Double_Nan) {
+@@ -2205,7 +2205,7 @@ TEST(MathOpTest, Min_12_Double_Nan) {
    }
  }
  
@@ -137,7 +137,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Min", 12);
    test.AddInput<double>("data_1", {3, 1},
                          {std::numeric_limits<double>::quiet_NaN(), -0.5, 0.5});
-@@ -1686,7 +1686,7 @@ TEST(MathOpTest, Min_12_Double_Nan_with_scalar) {
+@@ -2224,7 +2224,7 @@ TEST(MathOpTest, Min_12_Double_Nan_with_scalar) {
    }
  }
  
@@ -146,7 +146,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Min", 12);
    test.AddInput<double>("data_1", {2, 2},
                          {0.25, -0.25, -0.5, 0.5});
-@@ -1875,7 +1875,7 @@ TEST(MathOpTest, Min_13_Float16_VectorMatrix) {
+@@ -2413,7 +2413,7 @@ TEST(MathOpTest, Min_13_Float16_VectorMatrix) {
                       0.5f, 0.0f, 1.0f, 1.0f});
  }
  
@@ -155,7 +155,7 @@ index b2e9034653..95c928c1c1 100644
    TestFloat16MinMax("Min",
                      {4, 1}, {-1.0f, std::numeric_limits<float>::quiet_NaN(), 1.0f, 0.5f},
                      {4, 1}, {0.5f, 1.0f, 0.25f, std::numeric_limits<float>::quiet_NaN()},
-@@ -1883,7 +1883,7 @@ TEST(MathOpTest, Min_13_Float16_Nan) {
+@@ -2421,7 +2421,7 @@ TEST(MathOpTest, Min_13_Float16_Nan) {
                      {-1.0f, std::numeric_limits<float>::quiet_NaN(), 0.25f, std::numeric_limits<float>::quiet_NaN()});
  }
  
@@ -164,7 +164,7 @@ index b2e9034653..95c928c1c1 100644
    TestFloat16MinMax("Min",
                      {3, 1}, {-1.0f, std::numeric_limits<float>::quiet_NaN(), 1.0f},
                      {1}, {0.25f},
-@@ -2015,7 +2015,7 @@ TEST(MathOpTest, Max_12_Float_Nan) {
+@@ -2553,7 +2553,7 @@ TEST(MathOpTest, Max_12_Float_Nan) {
    }
  }
  
@@ -173,7 +173,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Max", 12);
    test.AddInput<float>("data_1", {3, 1},
                         {std::numeric_limits<float>::quiet_NaN(), -0.5f, 0.5f});
-@@ -2034,7 +2034,7 @@ TEST(MathOpTest, Max_12_Float_Nan_with_scalar) {
+@@ -2572,7 +2572,7 @@ TEST(MathOpTest, Max_12_Float_Nan_with_scalar) {
    }
  }
  
@@ -182,7 +182,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Max", 12);
    test.AddInput<float>("data_1", {2, 2},
                         {0.25f, -0.25f, -0.5f, 0.5f});
-@@ -2101,7 +2101,7 @@ TEST(MathOpTest, Max_12_Double_Nan) {
+@@ -2639,7 +2639,7 @@ TEST(MathOpTest, Max_12_Double_Nan) {
    }
  }
  
@@ -191,7 +191,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Max", 12);
    test.AddInput<double>("data_1", {3, 1},
                          {std::numeric_limits<double>::quiet_NaN(), -0.5, 0.5});
-@@ -2120,7 +2120,7 @@ TEST(MathOpTest, Max_12_Double_Nan_with_scalar) {
+@@ -2658,7 +2658,7 @@ TEST(MathOpTest, Max_12_Double_Nan_with_scalar) {
    }
  }
  
@@ -200,7 +200,7 @@ index b2e9034653..95c928c1c1 100644
    OpTester test("Max", 12);
    test.AddInput<double>("data_1", {2, 2},
                          {0.25, -0.25, -0.5, 0.5});
-@@ -2277,7 +2277,7 @@ TEST(MathOpTest, Max_13_Float16_VectorMatrix) {
+@@ -2830,7 +2830,7 @@ TEST(MathOpTest, Max_13_Float16_VectorMatrix) {
                       1.0f, 1.0f, 2.0f});
  }
  
@@ -209,7 +209,7 @@ index b2e9034653..95c928c1c1 100644
    TestFloat16MinMax("Max",
                      {4, 1}, {-1.0f, std::numeric_limits<float>::quiet_NaN(), 1.0f, 0.5f},
                      {4, 1}, {0.5f, 1.0f, 0.25f, std::numeric_limits<float>::quiet_NaN()},
-@@ -2285,7 +2285,7 @@ TEST(MathOpTest, Max_13_Float16_Nan) {
+@@ -2838,7 +2838,7 @@ TEST(MathOpTest, Max_13_Float16_Nan) {
                      {0.5f, std::numeric_limits<float>::quiet_NaN(), 1.0f, std::numeric_limits<float>::quiet_NaN()});
  }
  
@@ -218,6 +218,3 @@ index b2e9034653..95c928c1c1 100644
    TestFloat16MinMax("Max",
                      {3, 1}, {-1.0f, std::numeric_limits<float>::quiet_NaN(), 1.0f},
                      {1}, {0.25f},
--- 
-2.47.1
-
