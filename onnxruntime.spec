@@ -163,6 +163,10 @@ cd ../..
 mv ./onnxruntime ./onnxruntime.src
 cp -a cmake/build/onnxruntime ./onnxruntime
 cp cmake/build/requirements.txt ./requirements.txt
+# 1.28 setup.py imports this from the source tree. The copy above
+# replaces that tree with the staged package, which does not include it.
+mkdir -p onnxruntime/python
+cp onnxruntime.src/python/onnxruntime_collect_build_info.py onnxruntime/python/
 %py_build
 mv onnxruntime onnxruntime.bin
 mv onnxruntime.src onnxruntime
