@@ -58,6 +58,8 @@ Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
 Patch:		onnxruntime-compile.patch
 # 1.28 always downloads Eigen. Cooker has no network in the build chroot.
 Patch:		onnxruntime-system-eigen.patch
+# Abseil stays off. std::string maps still need string_view lookup.
+Patch:		onnxruntime-transparent-string-hash.patch
 
 BuildRequires:  cmake ninja
 BuildRequires:  make

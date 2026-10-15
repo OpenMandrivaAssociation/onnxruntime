@@ -1,0 +1,107 @@
+diff --git a/include/onnxruntime/core/common/inlined_containers.h b/include/onnxruntime/core/common/inlined_containers.h
+--- a/include/onnxruntime/core/common/inlined_containers.h
++++ b/include/onnxruntime/core/common/inlined_containers.h
+@@ -32,6 +32,9 @@
+ 
+ #else  // DISABLE_ABSEIL
+ 
++#include <functional>
++#include <string_view>
++#include <type_traits>
+ #include <unordered_set>
+ #include <unordered_map>
+ #include <set>
+@@ -111,14 +114,38 @@
+ 
+ #else  // DISABLE_ABSEIL
+ 
++// absl hash maps accept std::string_view lookups on std::string keys.
++// std::hash<std::string> is not transparent, so libstdc++ rejects
++// map.find(string_view). Hash the same bytes as std::hash<std::string>.
++struct TransparentStringHash {
++  using is_transparent = void;
++  size_t operator()(std::string_view value) const noexcept {
++    return std::hash<std::string_view>{}(value);
++  }
++};
++
++template <typename Key, typename = void>
++struct InlinedHash : std::hash<Key> {};
++
++template <typename Key>
++struct InlinedHash<Key, std::enable_if_t<std::is_same_v<Key, std::string>>>
++    : TransparentStringHash {};
++
++template <typename Key, typename = void>
++struct InlinedEq : std::equal_to<Key> {};
++
++template <typename Key>
++struct InlinedEq<Key, std::enable_if_t<std::is_same_v<Key, std::string>>>
++    : std::equal_to<void> {};
++
+ template <typename T, typename Allocator>
+ class InlinedHashSet : public std::unordered_set<T,
+-                                                 std::hash<T>,
+-                                                 std::equal_to<T>,
++                                                 InlinedHash<T>,
++                                                 InlinedEq<T>,
+                                                  Allocator> {
+   using Base = std::unordered_set<T,
+-                                  std::hash<T>,
+-                                  std::equal_to<T>,
++                                  InlinedHash<T>,
++                                  InlinedEq<T>,
+                                   Allocator>;
+ 
+  public:
+@@ -128,12 +155,12 @@
+ template <typename Key, typename Value,
+           typename Allocator>
+ class InlinedHashMap : public std::unordered_map<Key, Value,
+-                                                 std::hash<Key>,
+-                                                 std::equal_to<Key>,
++                                                 InlinedHash<Key>,
++                                                 InlinedEq<Key>,
+                                                  Allocator> {
+   using Base = std::unordered_map<Key, Value,
+-                                  std::hash<Key>,
+-                                  std::equal_to<Key>,
++                                  InlinedHash<Key>,
++                                  InlinedEq<Key>,
+                                   Allocator>;
+ 
+  public:
+@@ -146,12 +173,12 @@
+ // Use reserve() when the number of elements is known.
+ template <typename T, typename Allocator>
+ class NodeHashSet : public std::unordered_set<T,
+-                                              std::hash<T>,
+-                                              std::equal_to<T>,
++                                              InlinedHash<T>,
++                                              InlinedEq<T>,
+                                               Allocator> {
+   using Base = std::unordered_set<T,
+-                                  std::hash<T>,
+-                                  std::equal_to<T>,
++                                  InlinedHash<T>,
++                                  InlinedEq<T>,
+                                   Allocator>;
+ 
+  public:
+@@ -160,12 +187,12 @@
+ 
+ template <typename Key, typename Value, typename Allocator>
+ class NodeHashMap : public std::unordered_map<Key, Value,
+-                                              std::hash<Key>,
+-                                              std::equal_to<Key>,
++                                              InlinedHash<Key>,
++                                              InlinedEq<Key>,
+                                               Allocator> {
+   using Base = std::unordered_map<Key, Value,
+-                                  std::hash<Key>,
+-                                  std::equal_to<Key>,
++                                  InlinedHash<Key>,
++                                  InlinedEq<Key>,
+                                   Allocator>;
+ 
+  public:
