@@ -138,11 +138,13 @@ python onnxruntime/lora/adapter_format/compile_schema.py --flatc /usr/bin/flatc
 
 %build
 cd cmake
+# dlpack is not packaged, and the build chroot has no network.
 %cmake -G Ninja \
 	-Donnxruntime_BUILD_BENCHMARKS=OFF \
 	-Donnxruntime_BUILD_SHARED_LIB=ON \
 	-Donnxruntime_BUILD_UNIT_TESTS=OFF \
 	-Donnxruntime_ENABLE_PYTHON=ON \
+	-Donnxruntime_ENABLE_DLPACK=OFF \
 	-DPYTHON_VERSION=%{pyver} \
 	-Donnxruntime_DISABLE_ABSEIL=ON \
 	-Donnxruntime_USE_FULL_PROTOBUF=ON \
