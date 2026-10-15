@@ -40,8 +40,8 @@ Patch:      0010-disable-pytorch-tests.patch
 Patch:      0011-system-date-and-mp11.patch
 # Use the system cpuinfo
 Patch:      0012-system-cpuinfo.patch
-# Trigger onnx fix for onnxruntime_providers_shared
-Patch:      0013-onnx-onnxruntime-fix.patch
+# onnx 1.22 has no onnxruntime_fix.h. Static schema registration is compile-time.
+#Patch:      0013-onnx-onnxruntime-fix.patch
 # Use the system python version
 Patch:      0014-system-python.patch
 # Fix errors when DISABLE_ABSEIL=ON
@@ -60,6 +60,8 @@ Patch:		onnxruntime-compile.patch
 Patch:		onnxruntime-system-eigen.patch
 # Abseil stays off. std::string maps still need string_view lookup.
 Patch:		onnxruntime-transparent-string-hash.patch
+# Do not register ONNX opsets twice against a library that already did.
+Patch:		onnxruntime-skip-duplicate-schema.patch
 
 BuildRequires:  cmake ninja
 BuildRequires:  make
