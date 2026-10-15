@@ -51,9 +51,6 @@ Patch:      0016-missing-cpp-headers.patch
 # Revert https://github.com/microsoft/onnxruntime/pull/21492 until
 # Fedora's Eigen3 is compatible with the fix.
 Patch:      0017-revert-nan-propagation-bugfix.patch
-# Backport upstream implementation of onnx
-# from https://github.com/microsoft/onnxruntime/pull/21897
-Patch:      0019-backport-onnx-1.17.0-support.patch
 Patch:      0020-disable-locale-tests.patch
 Patch:      0021-fix-range-loop-construct.patch
 Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
@@ -83,6 +80,7 @@ BuildRequires:  pkgconfig(gtest)
 BuildRequires:  cmake(microsoft.gsl)
 BuildRequires:  pkgconfig(nlohmann_json)
 BuildRequires:  pkgconfig(protobuf)
+BuildRequires:  cmake(utf8_range)
 BuildRequires:  pkgconfig(python3)
 BuildRequires:  python
 BuildRequires:  python%{pyver}dist(numpy)

@@ -1,7 +1,7 @@
 diff --git a/cmake/external/onnxruntime_external_deps.cmake b/cmake/external/onnxruntime_external_deps.cmake
 --- a/cmake/external/onnxruntime_external_deps.cmake
 +++ b/cmake/external/onnxruntime_external_deps.cmake
-@@ -501,16 +501,7 @@
+@@ -501,16 +501,8 @@
  endif()
  
  endif()
@@ -15,11 +15,12 @@ diff --git a/cmake/external/onnxruntime_external_deps.cmake b/cmake/external/onn
 -)
 -
 -onnxruntime_fetchcontent_makeavailable(onnx)
++find_package(utf8_range CONFIG REQUIRED)
 +find_package(ONNX REQUIRED)
  
  if(TARGET ONNX::onnx AND NOT TARGET onnx)
    message(STATUS "Aliasing ONNX::onnx to onnx")
-@@ -567,13 +558,6 @@
+@@ -567,13 +559,6 @@
  # The other libs do not have the problem. All the sources are already there. We can compile them in any order.
  set(onnxruntime_EXTERNAL_DEPENDENCIES onnx_proto flatbuffers::flatbuffers)
  
