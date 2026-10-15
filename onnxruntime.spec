@@ -10,6 +10,7 @@ Name:       onnxruntime
 Version:    1.28.0
 Release:    1
 License:    MIT and ASL-2.0 and Boost and BSD
+Group:      System/Libraries
 URL:        https://github.com/microsoft/onnxruntime
 Source0:    https://github.com/microsoft/onnxruntime/archive/v%{version}/%{name}-%{version}.tar.gz
 
@@ -81,11 +82,12 @@ BuildRequires:  cmake(microsoft.gsl)
 BuildRequires:  pkgconfig(nlohmann_json)
 BuildRequires:  pkgconfig(protobuf)
 BuildRequires:  pkgconfig(python3)
-BuildRequires:  python3
-BuildRequires:  python-numpy
-BuildRequires:  python-setuptools
-BuildRequires:  python-wheel
-BuildRequires:  python-pip
+BuildRequires:  python
+BuildRequires:  python%{pyver}dist(numpy)
+BuildRequires:  python%{pyver}dist(setuptools)
+BuildRequires:  python%{pyver}dist(wheel)
+BuildRequires:  python%{pyver}dist(pip)
+BuildRequires:  python%{pyver}dist(packaging)
 BuildRequires:  pkgconfig(re2)
 BuildRequires:  safeint-devel
 BuildRequires:  pkgconfig(zlib)
@@ -100,6 +102,7 @@ scikit-learn, and more.
 
 %package devel
 Summary:    The development part of the %{name} package
+Group:      Development/C and C++
 Requires:   %{name}%{_isa} = %{version}-%{release}
 
 %description devel
@@ -107,6 +110,7 @@ The development part of the %{name} package
 
 %package -n python-onnxruntime
 Summary:    %{summary}
+Group:      Development/Python
 Requires:   %{name}%{_isa} = %{version}-%{release}
 
 %description -n python-onnxruntime
@@ -114,6 +118,7 @@ Python bindings for the %{name} package
 
 %package doc
 Summary:    Documentation files for the %{name} package
+Group:      Documentation
 BuildArch:  noarch
 
 %description doc
