@@ -1,0 +1,18 @@
+diff --git a/cmake/external/eigen.cmake b/cmake/external/eigen.cmake
+--- a/cmake/external/eigen.cmake
++++ b/cmake/external/eigen.cmake
+@@ -7,6 +7,9 @@
+ set(PATCH_EIGEN_S390X ${PROJECT_SOURCE_DIR}/patches/eigen/s390x-build.patch)
+ set(PATCH_EIGEN_S390X_WERROR ${PROJECT_SOURCE_DIR}/patches/eigen/s390x-build-werror.patch)
+ 
++if(onnxruntime_USE_PREINSTALLED_EIGEN)
++  find_package(Eigen3 CONFIG REQUIRED)
++else()
+ onnxruntime_fetchcontent_declare(
+     Eigen3
+     URL ${DEP_URL_eigen}
+@@ -16,3 +19,4 @@
+     EXCLUDE_FROM_ALL
+ )
+ onnxruntime_fetchcontent_makeavailable(Eigen3)
++endif()

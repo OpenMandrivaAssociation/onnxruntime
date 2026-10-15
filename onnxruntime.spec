@@ -59,6 +59,8 @@ Patch:      0021-fix-range-loop-construct.patch
 Patch:      0022-onnxruntime-convert-gsl-byte-to-std-byte.patch
 
 Patch:		onnxruntime-compile.patch
+# 1.28 always downloads Eigen. Cooker has no network in the build chroot.
+Patch:		onnxruntime-system-eigen.patch
 
 BuildRequires:  cmake ninja
 BuildRequires:  make
