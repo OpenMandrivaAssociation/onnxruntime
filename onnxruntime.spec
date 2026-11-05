@@ -8,7 +8,7 @@
 Summary:    A cross-platform inferencing and training accelerator
 Name:       onnxruntime
 Version:    1.28.0
-Release:    1
+Release:    2
 License:    MIT and ASL-2.0 and Boost and BSD
 Group:      System/Libraries
 URL:        https://github.com/microsoft/onnxruntime
@@ -62,6 +62,9 @@ Patch:		onnxruntime-system-eigen.patch
 Patch:		onnxruntime-transparent-string-hash.patch
 # Do not register ONNX opsets twice against a library that already did.
 Patch:		onnxruntime-skip-duplicate-schema.patch
+# Contrib schemas are not in the ONNX static opset. Counting them trips
+# SchemasRegisterer when the build leaves asserts on (RelWithDebInfo).
+Patch:		onnxruntime-contrib-schema-debug-count.patch
 
 BuildRequires:  cmake ninja
 BuildRequires:  make

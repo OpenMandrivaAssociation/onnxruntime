@@ -1,0 +1,22 @@
+diff --git a/onnxruntime/core/graph/contrib_ops/contrib_defs.h b/onnxruntime/core/graph/contrib_ops/contrib_defs.h
+--- a/onnxruntime/core/graph/contrib_ops/contrib_defs.h
++++ b/onnxruntime/core/graph/contrib_ops/contrib_defs.h
+@@ -10,12 +10,16 @@
+ #include "onnx/defs/data_type_utils.h"
+ #endif
+ 
++// These schemas are registered by ORT, not by ONNX's SchemasRegisterer.
++// dbg_included_in_static_opset must stay false. true increments
++// DbgOperatorSetTracker, and schema.cc then aborts when NDEBUG is unset
++// (639 ONNX schemas counted against 767, including these contrib ops).
+ #define ONNX_MS_OPERATOR_SET_SCHEMA(name, ver, impl) \
+-  ONNX_OPERATOR_SET_SCHEMA_EX(name, Microsoft, ::onnxruntime::kMSDomain, ver, true, impl)
++  ONNX_OPERATOR_SET_SCHEMA_EX(name, Microsoft, ::onnxruntime::kMSDomain, ver, false, impl)
+ 
+ // They are in ONNX domain but they are in our source code
+ #define ONNX_CONTRIB_OPERATOR_SET_SCHEMA(name, ver, impl) \
+-  ONNX_OPERATOR_SET_SCHEMA_EX(name, Onnx, ::ONNX_NAMESPACE::ONNX_DOMAIN, ver, true, impl)
++  ONNX_OPERATOR_SET_SCHEMA_EX(name, Onnx, ::ONNX_NAMESPACE::ONNX_DOMAIN, ver, false, impl)
+ 
+ namespace onnxruntime {
+ namespace contrib {
