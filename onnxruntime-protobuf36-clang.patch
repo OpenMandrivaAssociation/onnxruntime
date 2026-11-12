@@ -1,0 +1,86 @@
+diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
+--- a/cmake/CMakeLists.txt
++++ b/cmake/CMakeLists.txt
+@@ -1213,6 +1213,18 @@
+           target_compile_options(${target_name} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-Wno-strict-aliasing>")
+       endif()
+     endif()
++    # COMPILE_WARNING_AS_ERROR appends -Werror after every other option, so an
++    # earlier -Wno-error= flag cannot carve an exception. Clang 23 fails the
++    # 1.28 sources on unused locals that upstream still ships. Protobuf 36
++    # nodiscard sites are fixed in the source instead of silencing
++    # -Wunused-result.
++    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|AppleClang")
++      set_target_properties(${target_name} PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
++      target_compile_options(${target_name} PRIVATE
++        "$<$<COMPILE_LANGUAGE:CXX,C>:-Werror>"
++        "$<$<COMPILE_LANGUAGE:CXX,C>:-Wno-error=unused-variable>"
++        "$<$<COMPILE_LANGUAGE:CXX,C>:-Wno-error=unused-but-set-variable>")
++    endif()
+ endfunction()
+ 
+ function(onnxruntime_set_source_file_properties target_name)
+diff --git a/onnxruntime/core/flatbuffers/flatbuffers_utils.cc b/onnxruntime/core/flatbuffers/flatbuffers_utils.cc
+--- a/onnxruntime/core/flatbuffers/flatbuffers_utils.cc
++++ b/onnxruntime/core/flatbuffers/flatbuffers_utils.cc
+@@ -200,7 +200,6 @@
+     dims->Reserve(fbs_dims->size());
+     for (const auto fbs_dim : *fbs_dims) {
+       ORT_RETURN_IF(nullptr == fbs_dim, "Null entry in dimensions. Invalid ORT format model.");
+-      TensorShapeProto_Dimension dim;
+       ORT_RETURN_IF_ERROR(LoadTensorDimensionOrtFormat(*fbs_dim, *dims->Add()));
+     }
+   }
+diff --git a/onnxruntime/core/framework/graph_partitioner.cc b/onnxruntime/core/framework/graph_partitioner.cc
+--- a/onnxruntime/core/framework/graph_partitioner.cc
++++ b/onnxruntime/core/framework/graph_partitioner.cc
+@@ -1223,7 +1223,11 @@
+ 
+     AllocatorPtr allocator = output_buffer_holder->buffer_allocator;
+     IAllocatorUniquePtr<void> buffer = IAllocator::MakeUniquePtr<void>(allocator, buffer_size);
+-    model_proto.SerializeToArray(buffer.get(), static_cast<int>(buffer_size));
++    // SerializeToArray is [[nodiscard]] since protobuf 36.
++    if (!model_proto.SerializeToArray(buffer.get(), static_cast<int>(buffer_size))) {
++      return ORT_MAKE_STATUS(ONNXRUNTIME, INVALID_PROTOBUF,
++                             "Protobuf serialization failed when generating EPContext model");
++    }
+ 
+     *output_buffer_holder->buffer_size_ptr = buffer_size;
+     *output_buffer_holder->buffer_ptr = buffer.release();
+@@ -1236,7 +1240,10 @@
+     auto out_stream_buf = std::make_unique<epctx::OutStreamBuf>(*output_write_func_holder);
+     std::ostream out_stream(out_stream_buf.get());
+ 
+-    model_proto.SerializeToOstream(&out_stream);
++    if (!model_proto.SerializeToOstream(&out_stream)) {
++      return ORT_MAKE_STATUS(ONNXRUNTIME, INVALID_PROTOBUF,
++                             "Protobuf serialization failed when generating EPContext model");
++    }
+     out_stream.flush();
+     ORT_RETURN_IF_ERROR(out_stream_buf->GetStatus());
+   } else {
+diff --git a/onnxruntime/core/graph/contrib_ops/bert_defs.cc b/onnxruntime/core/graph/contrib_ops/bert_defs.cc
+--- a/onnxruntime/core/graph/contrib_ops/bert_defs.cc
++++ b/onnxruntime/core/graph/contrib_ops/bert_defs.cc
+@@ -1426,7 +1426,6 @@
+     }
+ 
+     if (ctx.hasInput(2)) {
+-      ONNX_NAMESPACE::TensorShapeProto output_shape;
+       propagateShapeFromInputToOutput(ctx, 0, 0);
+     } else {  // packed QKV
+       ONNX_NAMESPACE::TensorShapeProto output_shape;
+diff --git a/onnxruntime/python/onnxruntime_pybind_schema.cc b/onnxruntime/python/onnxruntime_pybind_schema.cc
+--- a/onnxruntime/python/onnxruntime_pybind_schema.cc
++++ b/onnxruntime/python/onnxruntime_pybind_schema.cc
+@@ -216,7 +216,9 @@
+           "_default_value",
+           [](ONNX_NAMESPACE::OpSchema::Attribute* attr) -> py::bytes {
+             std::string out;
+-            attr->default_value.SerializeToString(&out);
++            if (!attr->default_value.SerializeToString(&out)) {
++              throw std::runtime_error("Failed to serialize ONNX attribute default value");
++            }
+             return out;
+           })
+       .def_readonly("required", &ONNX_NAMESPACE::OpSchema::Attribute::required);

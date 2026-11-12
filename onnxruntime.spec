@@ -65,6 +65,9 @@ Patch:		onnxruntime-skip-duplicate-schema.patch
 # Contrib schemas are not in the ONNX static opset. Counting them trips
 # SchemasRegisterer when the build leaves asserts on (RelWithDebInfo).
 Patch:		onnxruntime-contrib-schema-debug-count.patch
+# Protobuf 36 marks Serialize* [[nodiscard]]. Clang 23 -Werror also fails
+# on unused locals that 1.28 still ships.
+Patch:		onnxruntime-protobuf36-clang.patch
 
 BuildRequires:  cmake ninja
 BuildRequires:  make
